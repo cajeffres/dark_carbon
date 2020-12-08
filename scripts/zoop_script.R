@@ -59,25 +59,40 @@ na.omit(drkcbnzoop.sum)
 #color blind pallete colors 
 cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
+#delete O and #N/A in Order column
+drkcbnzoop.sum2<-drkcbnzoop.sum[!(drkcbnzoop.sum$Order=="0" | drkcbnzoop.sum$Order=="#N/A"),]
+
 #Graph to see what it looks like right now for abundance 
-ggplot(drkcbnzoop.sum, aes(x = Date, y = Total, fill=Order)) + geom_area() +
-  scale_fill_manual(values=cbPalette) +
+ggplot(drkcbnzoop.sum2, aes(x = Date, y = Total, fill=Order)) +
+  geom_area() +
   ggtitle("Yearly Abundance") +
   scale_x_date(date_labels = "%b-%y", breaks= "6 months") +
   scale_y_continuous(label=comma) +
   theme_classic()
 
-#insert new group by data
-zoopgroup <-read_csv("groupbysum.csv")
+#filter out individual sites and analyze abundance over time
+mok<-drkcbnzoop.sum2%>% 
+  filter(Site == "MOK-US-RR")
 
-#insert new data for baby marsh
-bmgroup <-read_csv("bmgroup.csv")
+sac<-drkcbnzoop.sum2%>% 
+  filter(Site == "SAC-FREMONT")
 
-#format date into 
-bmgroup$Date<-as.Date(bmgroup$Date,format="%m/%d/%y")
+cb<-drkcbnzoop.sum2%>% 
+  filter(Site == "COS-BEACH")
 
-#graph abundance
-ggplot(data = bmgroup, aes(x = Date, y = Total, fill = Order)) + 
+kngf6<-drkcbnzoop.sum2%>% 
+  filter(Site == "KNAGGS-F6")
+
+#knaggs has throws and needs to be multiplied by something to not have NAs
+
+kngf3<-drkcbnzoop.sum2%>% 
+  filter(Site == "KNAGGS-F3")
+
+bm <-drkcbnzoop.sum2%>% 
+  filter(Site == "BABYMARSH")
+
+#graph abundance over time by site- Baby Marsh
+ggplot(data = bm, aes(x = Date, y = Total, fill = Order)) + 
   geom_bar(stat = "identity") +
   ggtitle("Baby Marsh Abundance") +
   scale_x_date(date_labels = "%b-%y", breaks= "6 months") +
@@ -98,4 +113,50 @@ ggplot(data = bmgroup, aes(x = Date, y = Total, fill = Order)) +
 
 dev.off()
 
+#graph abundance over time by site- MokUSRR
+ggplot(data = mok, aes(x = Date, y = Total, fill = Order)) + 
+  geom_bar(stat = "identity") +
+  ggtitle("MOK-USRR Abundance") +
+  scale_x_date(date_labels = "%b-%y", breaks= "6 months") +
+  labs(x= "Date", y= "Total Abundance (ind/m3)") +
+  scale_y_continuous(label=comma) +
+  theme_classic()
+
+#graph abundance over time by site- CosBeach
+ggplot(data = cb, aes(x = Date, y = Total, fill = Order)) + 
+  geom_bar(stat = "identity") +
+  ggtitle("Cos Beach Abundance") +
+  scale_x_date(date_labels = "%b-%y", breaks= "6 months") +
+  labs(x= "Date", y= "Total Abundance (ind/m3)") +
+  scale_y_continuous(label=comma) +
+  theme_classic()
+
+#graph abundance over time by site- KnaggsF6
+ggplot(data = kngf6, aes(x = Date, y = Total, fill = Order)) + 
+  geom_bar(stat = "identity") +
+  ggtitle("Knaggs-F6 Abundance") +
+  scale_x_date(date_labels = "%b-%y", breaks= "6 months") +
+  labs(x= "Date", y= "Total Abundance (ind/m3)") +
+  scale_y_continuous(label=comma) +
+  theme_classic()
+
+#graph abundance over time by site- KnaggsF3
+ggplot(data = kngf3, aes(x = Date, y = Total, fill = Order)) + 
+  geom_bar(stat = "identity") +
+  ggtitle("Knaggs-F3 Abundance") +
+  scale_x_date(date_labels = "%b-%y", breaks= "6 months") +
+  labs(x= "Date", y= "Total Abundance (ind/m3)") +
+  scale_y_continuous(label=comma) +
+  theme_classic()
+
+#graph abundance over time by site- Sac-Fremont
+ggplot(data = sac, aes(x = Date, y = Total, fill = Order)) + 
+  geom_bar(stat = "identity") +
+  ggtitle("Sac-Fremont Abundance") +
+  scale_x_date(date_labels = "%b-%y", breaks= "6 months") +
+  labs(x= "Date", y= "Total Abundance (ind/m3)") +
+  scale_y_continuous(label=comma) +
+  theme_classic()
+
 #Group together large and small cladocera for in depth comparision  
+

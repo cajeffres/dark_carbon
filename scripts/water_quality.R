@@ -2,7 +2,7 @@
 #LABWQ Data done by Marissa 
 
 #load csv 
-darkcbn.wq <-read_csv("darkcarbonwq20.csv")
+darkcbn.wq <-read_csv("2020-10-01_labwq.csv")
 
 #format date into 
 darkcbn.wq$Date<-as.Date(darkcbn.wq$Date,format="%m/%d/%y")
@@ -161,6 +161,8 @@ ggplot(mokwqlong, aes(x=Date, y=value))+
   facet_wrap(~measure,  ncol=2) 
 
 dev.off()
+
+
 ### Dark Carbon VSS data over time 
 
 # Loading Libraries -------------------------------------------------------

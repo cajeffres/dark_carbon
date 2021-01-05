@@ -203,8 +203,16 @@ dev.off()
 c <- ggplot(darkcbn.wq, aes(Date, Chl)) + geom_point()
 
 c + facet_grid(cols = vars(Site)) + 
-  scale_x_date(date_labels = "%b-%y", breaks= "6 months") +
-  coord_cartesian(ylim = 
+  scale_x_date(date_labels = "%b-%y", breaks= "6 months") 
+
+#export to show and get feedback
+
+png("chl_facet.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+c + facet_grid(cols = vars(Site)) + 
+  scale_x_date(date_labels = "%b-%y", breaks= "6 months") 
+
+dev.off()
 
 
 ### Dark Carbon VSS data over time 

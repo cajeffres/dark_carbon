@@ -1,6 +1,16 @@
 #use this script for WQ data
 #LABWQ Data done by Marissa 
 
+#load libraries
+library(lubridate)
+library(dplyr)
+library(tidyr)
+library(readr)
+library(reshape2)
+library(vegan)
+library(ggplot2)
+library(scales)
+
 #load csv 
 darkcbn.wq <-read_csv("2020-10-01_labwq.csv")
 
@@ -161,6 +171,48 @@ ggplot(mokwqlong, aes(x=Date, y=value))+
   facet_wrap(~measure,  ncol=2) 
 
 dev.off()
+
+#New script for facet grid---- 
+#putting all sites on the same grid 
+#trying to facet grid one parameter(pH) for all sites
+p <- ggplot(darkcbn.wq, aes(Date, pH)) + geom_point()
+
+p + facet_grid(cols = vars(Site)) + 
+  scale_x_date(date_labels = "%b-%y", breaks= "6 months") + 
+  coord_cartesian(ylim = c(2, 17))
+
+#export to show and get feedback
+#how should I compare with Knaggs vs other sites
+#how clear can I make it 
+
+png("pH_facet.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+p + facet_grid(cols = vars(Site)) + 
+  scale_x_date(date_labels = "%b-%y", breaks= "6 months") + 
+  coord_cartesian(ylim = c(2, 17))
+
+dev.off()
+
+#need to combine Knaggs together and maybe omit wendels?
+#so take out BM, CB, Knaggs, Mok, XSSAC 
+#might need to do knaggs seperately then wrap it in with its on y scale???
+#y axis should be limited to 20 or even less 
+
+#trying to facet grid one parameter(Chl) for all sites
+c <- ggplot(darkcbn.wq, aes(Date, Chl)) + geom_point()
+
+c + facet_grid(cols = vars(Site)) + 
+  scale_x_date(date_labels = "%b-%y", breaks= "6 months") 
+
+#export to show and get feedback
+
+png("chl_facet.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+c + facet_grid(cols = vars(Site)) + 
+  scale_x_date(date_labels = "%b-%y", breaks= "6 months") 
+
+dev.off()
+
 
 
 ### Dark Carbon VSS data over time 

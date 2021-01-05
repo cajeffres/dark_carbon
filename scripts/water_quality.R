@@ -180,7 +180,7 @@ library(ggplot2)
 # Importing VSS data ------------------------------------------------------
 
 #reading the csv in
-vss_data = read.csv("data/2020_11_17_VSS_data_MRL.csv", 
+vss_data = read.csv("data/2021_01_04_VSS_data_NSC.csv",
                     sep = ",", header = TRUE, stringsAsFactors = FALSE)
 
 
@@ -196,12 +196,33 @@ vss_data$POC_mgL <- as.numeric(vss_data$POC_mgL)
 vss_data$Date_collected <- ymd(vss_data$Date_collected)
 
 
-# Filter by Site ----------------------------------------------------------
+# Filter by Date and Site ----------------------------------------------------------
+
+#Dividing data into 2019 and 2020
+
+vss_jan_march_2019 <- vss_data %>%
+  filter(Date_collected >= "2018-12-10", Date_collected <= "2019-03-31")
+
+vss_july_dec_2019 <- vss_data %>%
+  filter(Date_collected >= "2019-07-01", Date_collected <= "2019-12-31")
+
+vss_2020 <- vss_data %>% 
+  filter(Date_collected >= "2020-01-08", Date_collected <= "2020-12-11")
+
+vss_2019_no_Knaggs <- vss_2019 %>%
+  filter(Site != "KNAGGS-F6")
+
+vss_2020_no_Knaggs <- vss_2020 %>%
+  filter(Site != "KNAGGS-F3")
 
 #trying to isolate BABYMARSH
 
 baby_marsh_vss_data <- vss_data %>%
   filter(Site == "BABYMARSH")
+
+baby_marsh_vss_data_jan_june_2019 <- baby_marsh_vss_data %>%
+  filter(Date_collected >= "2018-12-10", Date_collected <= "2019-06-30")
+
 
 #trying to isolate MOK-US-RR
 
@@ -238,11 +259,47 @@ knaggs_f3_vss_data <- vss_data %>%
 wendells_vss_data <- vss_data %>%
   filter(Site == c("WENDELLS"))
 
+#Divide into Pairs and smaller time periods 
+
+baby_marsh_xssac_jan_june_2019 <- vss_data %>%
+  filter(Site %in% c("BABYMARSH", "SAC-FREMONT"),
+         Date_collected >= "2018-12-01", Date_collected <= "2019-06-30")
+
+
 
 # GRAPHING VSS_mg/L ----------------------------------------------------------------
 
 
 #graphing VSS_mgl over time per site
+
+## Graphing all sites per year 
+
+#2019 VSS 
+ggplot(data = vss_2019, aes(x=Date_collected, y = VSS_mgL))+
+  geom_point(aes(col=Site), size = 1 )+
+  labs(x = "Date Collected", y = "VSS (mg/L)", title = "2019 VSS(mg/L")+
+  theme_bw(base_size = 10)
+
+#2020 VSS
+ggplot(data = vss_2020, aes(x=Date_collected, y = VSS_mgL))+
+  geom_point(aes(col=Site), size = 1 )+
+  labs(x = "Date Collected", y = "VSS (mg/L)", title = "2020 VSS(mg/L")+
+  theme_bw(base_size = 10)
+
+#boxplot per site per year
+boxplot(VSS_mgL~Date_collected, data=baby_marsh_vss_data_jan_june_2019,
+        main = "Baby Marsh January - June 2019 VSS (mg/L)",
+        xlab = "Date Collected",
+        ylab = "VSS mg/L",
+        col = "red",
+        border = "black")
+
+##Trying to graph two sites on the same graph using a boxplot graph 
+ggplot(data=baby_marsh_xssac_jan_june_2019, aes(x = Date_collected, y = VSS_mgL, fill = Site))+
+  geom_boxplot()+
+  facet_grid(Site~.,)
+
+
 #####graphing each site separately because for each 
 #####sample date there are 3 repetition per site 
 

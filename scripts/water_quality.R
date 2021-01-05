@@ -180,7 +180,7 @@ library(ggplot2)
 # Importing VSS data ------------------------------------------------------
 
 #reading the csv in
-vss_data = read.csv("data/2020_11_17_VSS_data_MRL.csv", 
+vss_data = read.csv("data/2021_01_04_VSS_data_NSC.csv",
                     sep = ",", header = TRUE, stringsAsFactors = FALSE)
 
 
@@ -196,12 +196,29 @@ vss_data$POC_mgL <- as.numeric(vss_data$POC_mgL)
 vss_data$Date_collected <- ymd(vss_data$Date_collected)
 
 
-# Filter by Site ----------------------------------------------------------
+# Filter by Date and Site ----------------------------------------------------------
+
+#Dividing data into 2019 and 2020
+
+vss_2019 <- vss_data %>%
+  filter(Date_collected >= "2018-12-10", Date_collected <= "2019-12-10")
+
+vss_2020 <- vss_data %>% 
+  filter(Date_collected >= "2020-01-08", Date_collected <= "2020-12-11")
+
+vss_2019_no_Knaggs <- vss_2019 %>%
+  filter(Site != "KNAGGS-F6")
+
+vss_2020_no_Knaggs <- vss_2020 %>%
+  filter(Site != "KNAGGS-F3")
 
 #trying to isolate BABYMARSH
 
 baby_marsh_vss_data <- vss_data %>%
   filter(Site == "BABYMARSH")
+
+baby_marsh_vss_data_2019 <- baby_marsh_vss_data %>%
+  filter(Date_collected >= "2018-12-10", Date_collected <= "2019-12-10")
 
 #trying to isolate MOK-US-RR
 
@@ -243,6 +260,29 @@ wendells_vss_data <- vss_data %>%
 
 
 #graphing VSS_mgl over time per site
+
+## Graphing all sites per year 
+
+#2019 VSS 
+ggplot(data = vss_2019, aes(x=Date_collected, y = VSS_mgL))+
+  geom_point(aes(col=Site), size = 1 )+
+  labs(x = "Date Collected", y = "VSS (mg/L)", title = "2019 VSS(mg/L")+
+  theme_bw(base_size = 10)
+
+#2020 VSS
+ggplot(data = vss_2020, aes(x=Date_collected, y = VSS_mgL))+
+  geom_point(aes(col=Site), size = 1 )+
+  labs(x = "Date Collected", y = "VSS (mg/L)", title = "2020 VSS(mg/L")+
+  theme_bw(base_size = 10)
+
+#boxplot per site per year
+boxplot(VSS_mgL~Date_collected, data=baby_marsh_vss_data_2019,
+        main = "Baby Marsh 2019 VSS (mg/L)",
+        xlab = "Date Collected",
+        ylab = "VSS mg/L",
+        col = "blue",
+        border = "black")
+
 #####graphing each site separately because for each 
 #####sample date there are 3 repetition per site 
 

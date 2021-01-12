@@ -200,11 +200,16 @@ vss_data$Date_collected <- ymd(vss_data$Date_collected)
 
 #Dividing data into 2019 and 2020
 
+<<<<<<< HEAD
 vss_jan_march_2019 <- vss_data %>%
   filter(Date_collected >= "2018-12-10", Date_collected <= "2019-03-31")
 
 vss_july_dec_2019 <- vss_data %>%
   filter(Date_collected >= "2019-07-01", Date_collected <= "2019-12-31")
+=======
+vss_2019 <- vss_data %>%
+  filter(Date_collected >= "2018-12-10", Date_collected <= "2019-12-10")
+>>>>>>> 2434fa145421af41960a35093dbe60e4da773078
 
 vss_2020 <- vss_data %>% 
   filter(Date_collected >= "2020-01-08", Date_collected <= "2020-12-11")
@@ -220,9 +225,14 @@ vss_2020_no_Knaggs <- vss_2020 %>%
 baby_marsh_vss_data <- vss_data %>%
   filter(Site == "BABYMARSH")
 
+<<<<<<< HEAD
 baby_marsh_vss_data_jan_june_2019 <- baby_marsh_vss_data %>%
   filter(Date_collected >= "2018-12-10", Date_collected <= "2019-06-30")
 
+=======
+baby_marsh_vss_data_2019 <- baby_marsh_vss_data %>%
+  filter(Date_collected >= "2018-12-10", Date_collected <= "2019-12-10")
+>>>>>>> 2434fa145421af41960a35093dbe60e4da773078
 
 #trying to isolate MOK-US-RR
 
@@ -287,6 +297,7 @@ ggplot(data = vss_2020, aes(x=Date_collected, y = VSS_mgL))+
   theme_bw(base_size = 10)
 
 #boxplot per site per year
+<<<<<<< HEAD
 boxplot(VSS_mgL~Date_collected, data=baby_marsh_vss_data_jan_june_2019,
         main = "Baby Marsh January - June 2019 VSS (mg/L)",
         xlab = "Date Collected",
@@ -300,6 +311,15 @@ ggplot(data=baby_marsh_xssac_jan_june_2019, aes(x = Date_collected, y = VSS_mgL,
   facet_grid(Site~.,)
 
 
+=======
+boxplot(VSS_mgL~Date_collected, data=baby_marsh_vss_data_2019,
+        main = "Baby Marsh 2019 VSS (mg/L)",
+        xlab = "Date Collected",
+        ylab = "VSS mg/L",
+        col = "blue",
+        border = "black")
+
+>>>>>>> 2434fa145421af41960a35093dbe60e4da773078
 #####graphing each site separately because for each 
 #####sample date there are 3 repetition per site 
 

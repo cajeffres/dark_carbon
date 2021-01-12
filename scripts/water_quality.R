@@ -198,21 +198,19 @@ vss_data$Date_collected <- ymd(vss_data$Date_collected)
 
 # Filter by Date and Site ----------------------------------------------------------
 
-#Dividing data into 2019 and 2020
+#Dividing data into half year intervals for 2019 and 2020
 
-<<<<<<< HEAD
-vss_jan_march_2019 <- vss_data %>%
-  filter(Date_collected >= "2018-12-10", Date_collected <= "2019-03-31")
+vss_jan_june_2019 <- vss_data %>%
+  filter(Date_collected >= "2018-12-10", Date_collected <= "2019-06-30")
 
 vss_july_dec_2019 <- vss_data %>%
   filter(Date_collected >= "2019-07-01", Date_collected <= "2019-12-31")
-=======
-vss_2019 <- vss_data %>%
-  filter(Date_collected >= "2018-12-10", Date_collected <= "2019-12-10")
->>>>>>> 2434fa145421af41960a35093dbe60e4da773078
 
-vss_2020 <- vss_data %>% 
-  filter(Date_collected >= "2020-01-08", Date_collected <= "2020-12-11")
+vss_jan_june_2020 <- vss_data %>%
+  filter(Date_collected >= "2020-01-01", Date_collected <= "2020-06-30")
+
+vss_july_dec_2020 <- vss_data %>% 
+  filter(Date_collected >= "2020-07-01", Date_collected <= "2020-12-31")
 
 vss_2019_no_Knaggs <- vss_2019 %>%
   filter(Site != "KNAGGS-F6")
@@ -225,14 +223,13 @@ vss_2020_no_Knaggs <- vss_2020 %>%
 baby_marsh_vss_data <- vss_data %>%
   filter(Site == "BABYMARSH")
 
-<<<<<<< HEAD
 baby_marsh_vss_data_jan_june_2019 <- baby_marsh_vss_data %>%
   filter(Date_collected >= "2018-12-10", Date_collected <= "2019-06-30")
 
-=======
+
 baby_marsh_vss_data_2019 <- baby_marsh_vss_data %>%
   filter(Date_collected >= "2018-12-10", Date_collected <= "2019-12-10")
->>>>>>> 2434fa145421af41960a35093dbe60e4da773078
+
 
 #trying to isolate MOK-US-RR
 
@@ -269,12 +266,6 @@ knaggs_f3_vss_data <- vss_data %>%
 wendells_vss_data <- vss_data %>%
   filter(Site == c("WENDELLS"))
 
-#Divide into Pairs and smaller time periods 
-
-baby_marsh_xssac_jan_june_2019 <- vss_data %>%
-  filter(Site %in% c("BABYMARSH", "SAC-FREMONT"),
-         Date_collected >= "2018-12-01", Date_collected <= "2019-06-30")
-
 
 
 # GRAPHING VSS_mg/L ----------------------------------------------------------------
@@ -297,7 +288,6 @@ ggplot(data = vss_2020, aes(x=Date_collected, y = VSS_mgL))+
   theme_bw(base_size = 10)
 
 #boxplot per site per year
-<<<<<<< HEAD
 boxplot(VSS_mgL~Date_collected, data=baby_marsh_vss_data_jan_june_2019,
         main = "Baby Marsh January - June 2019 VSS (mg/L)",
         xlab = "Date Collected",
@@ -310,8 +300,8 @@ ggplot(data=baby_marsh_xssac_jan_june_2019, aes(x = Date_collected, y = VSS_mgL,
   geom_boxplot()+
   facet_grid(Site~.,)
 
+# Box Plot facet wrap for each half of year for 2019 and 2020 -------------
 
-=======
 boxplot(VSS_mgL~Date_collected, data=baby_marsh_vss_data_2019,
         main = "Baby Marsh 2019 VSS (mg/L)",
         xlab = "Date Collected",
@@ -319,7 +309,41 @@ boxplot(VSS_mgL~Date_collected, data=baby_marsh_vss_data_2019,
         col = "blue",
         border = "black")
 
->>>>>>> 2434fa145421af41960a35093dbe60e4da773078
+ggplot(data = vss_jan_june_2019, aes(x = Date_collected, y = VSS_mgL, fill = Site))+
+    geom_boxplot(width= 0.5)+
+    geom_jitter(width = 0.2, aes(col=Site))+
+    theme_bw(base_size = 10)+
+    facet_wrap(~Site, scale="free", nrow = 8)
+  
+ggplot(data = vss_july_dec_2019, aes(x = Date_collected, y = VSS_mgL, fill = Site))+
+  geom_boxplot(width = 0.5)+
+  geom_jitter(width = 0.2)+
+  theme_bw(base_size = 10)+
+  facet_wrap(~Site, scale="free", nrow = 8)
+
+ggplot(data = vss_jan_june_2020, aes(x = Date_collected, y = VSS_mgL, fill = Site))+
+  geom_boxplot(width= 0.5)+
+  geom_jitter(width = 0.2)+
+  theme_bw(base_size = 10)+
+  facet_wrap(~Site, scale="free", nrow = 8)
+
+ggplot(data = vss_july_dec_2020, aes(x = Date_collected, y = VSS_mgL, fill = Site))+
+  geom_boxplot(alpha = .5, width = 0.1, aes(col=Site))+
+  geom_jitter(width = 0.2, aes(col=Site))+
+  theme_bw(base_size = 10)+
+  facet_wrap(~Site, scale="free", nrow = 8)
+
+ggplot(data = vss_july_dec_2020, aes(x = Date_collected, y = VSS_mgL))+
+  geom_point(aes(col=Site), size = 1)+
+  theme_bw(base_size = 10)+
+  facet_wrap(~Site, scale="free", nrow = 8)
+
+ggplot(data = baby_marsh_vss_data_jan_june_2019, aes(x = Date_collected, y = VSS_mgL, full = Site))+
+  geom_boxplot()+
+  geom_jitter(width = 0.2, aes(col=Site))+
+  theme_bw(base_size = 10)
+
+
 #####graphing each site separately because for each 
 #####sample date there are 3 repetition per site 
 
@@ -463,7 +487,7 @@ ggplot(data = wendells_vss_data, aes(x = Date_collected, y = POC_mgL))+
 # DOC ---------------------------------------------------------------------
 
 
-doc_data = read.csv("data/2020-12-03_BioAvail_SUVA254_NSC.csv", 
+doc_data = read.csv("data/2021-01-11_BioAvail_SUVA254_NSC.csv", 
                     sep = ",", header = TRUE, stringsAsFactors = FALSE)
 
 
@@ -487,7 +511,9 @@ doc_data$Date.Sampled <- mdy(doc_data$Date.Sampled)
 
 #Remove Floating Peats Sites 
 doc_data <- doc_data %>% 
-  filter(Location != c("SRT 1", "LRT 2", "SRT 3", "LRT 4", "OPEN 5", "CLOSED 6", "OPEN 7", "CLOSED 8", "FP INLET")
+  filter(Location %in% c("BABYMARSH", "MOK-US-RR", "COS-BEACH", "KNAGGS-F6", 
+                         "KNAGGS-F3", "DI-BLANK", "COS-TRI", "SAC-XS", 
+                         "WENDELLS", "COS-TRIDISCON", "LUCO", "314_COS" ))
 
 #moving Repetition column next to Location column 
 doc_data <- doc_data %>%

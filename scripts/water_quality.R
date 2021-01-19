@@ -174,12 +174,88 @@ dev.off()
 
 #New script for facet grid---- 
 #putting all sites on the same grid 
-#trying to facet grid one parameter(pH) for all sites
-p <- ggplot(darkcbn.wq, aes(Date, pH)) + geom_point()
 
-p + facet_grid(cols = vars(Site)) + 
-  scale_x_date(date_labels = "%b-%y", breaks= "6 months") + 
-  coord_cartesian(ylim = c(2, 17))
+#trying to facet grid one parameter(pH) for all sites
+p <- ggplot(darkcbn.wq, aes(Date, pH)) + geom_point(position = "jitter")
+
+p + facet_grid(rows = vars(Site)) + 
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") + 
+  coord_cartesian(ylim = c(6, 9)) + 
+  theme_bw() 
+
+#trying to facet grid one parameter(chl) for all sites
+c <- ggplot(darkcbn.wq, aes(Date, Chl)) + geom_point(position = "jitter")
+
+c + facet_grid(rows = vars(Site)) + 
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  scale_y_log10() + 
+  theme_bw()
+
+#trying to facet grid one parameter(EC) for all sites
+e <- ggplot(darkcbn.wq, aes(Date, EC)) + geom_point(position = "jitter")
+
+e + facet_grid(rows = vars(Site)) + 
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  scale_y_log10() + 
+  theme_bw()
+
+#trying to facet grid one parameter(Turbidity) for all sites
+t <- ggplot(darkcbn.wq, aes(Date, Turbidity)) + geom_point(position = "jitter")
+
+t + facet_grid(rows = vars(Site)) + 
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  scale_y_log10() + 
+  theme_bw()
+
+#trying to facet grid one parameter(DOC) for all sites 
+d <- ggplot(darkcbn.wq, aes(Date, DOC)) + geom_point(position = "jitter")
+
+d + facet_grid(rows = vars(Site)) + 
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  scale_y_log10() + 
+  theme_bw()
+
+#trying to facet grid one parameter(PO4) for all sites
+o <- ggplot(darkcbn.wq, aes(Date, PO4)) + geom_point(position = "jitter")
+
+o + facet_grid(rows = vars(Site)) + 
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  theme_bw()
+
+#trying to facet grid one parameter(TP) for all sites 
+tp <- ggplot(darkcbn.wq, aes(Date, TP)) + geom_point(position = "jitter")
+
+tp + facet_grid(rows = vars(Site)) + 
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  scale_y_log10() + 
+  labs(title =" Total Phosphorus", x = "Date", y = "Phosphrous (ppm)") +
+  theme_bw()
+
+#trying to facet grid one parameter(NO3) for all sites
+n <- ggplot(darkcbn.wq, aes(Date, NO3)) + geom_point(position = "jitter")
+
+n + facet_grid(rows = vars(Site)) + 
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  labs(title =" Nitrate", x = "Date", y = "Nitrate (ppm)") +
+  scale_y_log10() + 
+  theme_bw()
+
+#trying to facet grid one parameter(NH4) for all sites
+h <- ggplot(darkcbn.wq, aes(Date, NH4)) + geom_point(position = "jitter")
+
+h + facet_grid(rows = vars(Site)) + 
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  labs(title =" Ammonium", x = "Date", y = "Ammonium (ppm)") +
+  theme_bw()
+
+#trying to facet grid one parameter(TN) for all sites
+s <- ggplot(darkcbn.wq, aes(Date, TN)) + geom_point(position = "jitter")
+
+s + facet_grid(rows = vars(Site)) + 
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  labs(title =" Total Nitrogen", x = "Date", y = "Nitrogen (ppm)") +
+  scale_y_log10() + 
+  theme_bw()
 
 #export to show and get feedback
 #how should I compare with Knaggs vs other sites

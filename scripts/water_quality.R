@@ -309,6 +309,10 @@ boxplot(VSS_mgL~Date_collected, data=baby_marsh_vss_data_2019,
         col = "blue",
         border = "black")
 
+
+# Struggling with Box plot ------------------------------------------------
+
+
 ggplot(data = vss_jan_june_2019, aes(x = Date_collected, y = VSS_mgL, fill = Site))+
     geom_boxplot(width= 0.5)+
     geom_jitter(width = 0.2, aes(col=Site))+
@@ -327,10 +331,11 @@ ggplot(data = vss_jan_june_2020, aes(x = Date_collected, y = VSS_mgL, fill = Sit
   theme_bw(base_size = 10)+
   facet_wrap(~Site, scale="free", nrow = 8)
 
-ggplot(data = vss_july_dec_2020, aes(x = Date_collected, y = VSS_mgL, fill = Site))+
+ggplot(data = vss_july_dec_2020, aes(x = VSS_mgL, y = Date_collected, fill = Site))+
   geom_boxplot(alpha = .5, width = 0.1, aes(col=Site))+
   geom_jitter(width = 0.2, aes(col=Site))+
   theme_bw(base_size = 10)+
+  coord_flip()+
   facet_wrap(~Site, scale="free", nrow = 8)
 
 ggplot(data = vss_july_dec_2020, aes(x = Date_collected, y = VSS_mgL))+
@@ -487,7 +492,7 @@ ggplot(data = wendells_vss_data, aes(x = Date_collected, y = POC_mgL))+
 # DOC ---------------------------------------------------------------------
 
 
-doc_data = read.csv("data/2021-01-11_BioAvail_SUVA254_NSC.csv", 
+doc_data = read.csv("data/2021-01-12_BioAvail_SUVA254_NSC.csv", 
                     sep = ",", header = TRUE, stringsAsFactors = FALSE)
 
 

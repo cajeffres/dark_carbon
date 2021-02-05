@@ -196,6 +196,9 @@ vss_data$POC_mgL <- as.numeric(vss_data$POC_mgL)
 vss_data$Date_collected <- ymd(vss_data$Date_collected)
 
 
+vss_data_group <- group_by(vss_data, Site, Date_collected)
+vss_sum <- summarise(vss_data_group, mean_vss = mean(VSS_mgL), sd_vss = sd(VSS_mgL))
+
 # Filter by Date and Site ----------------------------------------------------------
 
 #Dividing data into half year intervals for 2019 and 2020
@@ -212,6 +215,18 @@ vss_jan_june_2020 <- vss_data %>%
 vss_july_dec_2020 <- vss_data %>% 
   filter(Date_collected >= "2020-07-01", Date_collected <= "2020-12-31")
 
+vss_jan_june_2019_sum <- vss_sum %>%
+  filter(Date_collected >= "2018-12-10", Date_collected <= "2019-06-30")
+
+vss_july_dec_2019_sum<- vss_sum %>%
+  filter(Date_collected >= "2019-07-01", Date_collected <= "2019-12-31")
+
+vss_jan_june_2020_sum<- vss_sum %>%
+  filter(Date_collected >= "2020-01-01", Date_collected <= "2020-06-30")
+
+vss_july_dec_2020_sum <- vss_sum %>% 
+  filter(Date_collected >= "2020-07-01", Date_collected <= "2020-12-31")
+
 vss_2019_no_Knaggs <- vss_2019 %>%
   filter(Site != "KNAGGS-F6")
 
@@ -222,13 +237,6 @@ vss_2020_no_Knaggs <- vss_2020 %>%
 
 baby_marsh_vss_data <- vss_data %>%
   filter(Site == "BABYMARSH")
-
-baby_marsh_vss_data_jan_june_2019 <- baby_marsh_vss_data %>%
-  filter(Date_collected >= "2018-12-10", Date_collected <= "2019-06-30")
-
-
-baby_marsh_vss_data_2019 <- baby_marsh_vss_data %>%
-  filter(Date_collected >= "2018-12-10", Date_collected <= "2019-12-10")
 
 
 #trying to isolate MOK-US-RR
@@ -287,67 +295,48 @@ ggplot(data = vss_2020, aes(x=Date_collected, y = VSS_mgL))+
   labs(x = "Date Collected", y = "VSS (mg/L)", title = "2020 VSS(mg/L")+
   theme_bw(base_size = 10)
 
-#boxplot per site per year
-boxplot(VSS_mgL~Date_collected, data=baby_marsh_vss_data_jan_june_2019,
-        main = "Baby Marsh January - June 2019 VSS (mg/L)",
-        xlab = "Date Collected",
-        ylab = "VSS mg/L",
-        col = "red",
-        border = "black")
+#VSS by 6 month periods
 
-##Trying to graph two sites on the same graph using a boxplot graph 
-ggplot(data=baby_marsh_xssac_jan_june_2019, aes(x = Date_collected, y = VSS_mgL, fill = Site))+
-  geom_boxplot()+
-  facet_grid(Site~.,)
+ggplot(data = vss_jan_june_2019, aes(x = Date_collected, y = VSS_mgL))+
+  geom_point(aes(col=Site), size = 1)+
+  theme_bw(base_size = 10)
 
-# Box Plot facet wrap for each half of year for 2019 and 2020 -------------
+ggplot(data = vss_july_dec_2019, aes(x = Date_collected, y = VSS_mgL))+
+  geom_point(aes(col=Site), size = 1)+
+  theme_bw(base_size = 10)
 
-boxplot(VSS_mgL~Date_collected, data=baby_marsh_vss_data_2019,
-        main = "Baby Marsh 2019 VSS (mg/L)",
-        xlab = "Date Collected",
-        ylab = "VSS mg/L",
-        col = "blue",
-        border = "black")
-
-
-# Struggling with Box plot ------------------------------------------------
-
-
-ggplot(data = vss_jan_june_2019, aes(x = Date_collected, y = VSS_mgL, fill = Site))+
-    geom_boxplot(width= 0.5)+
-    geom_jitter(width = 0.2, aes(col=Site))+
-    theme_bw(base_size = 10)+
-    facet_wrap(~Site, scale="free", nrow = 8)
-  
-ggplot(data = vss_july_dec_2019, aes(x = Date_collected, y = VSS_mgL, fill = Site))+
-  geom_boxplot(width = 0.5)+
-  geom_jitter(width = 0.2)+
-  theme_bw(base_size = 10)+
-  facet_wrap(~Site, scale="free", nrow = 8)
-
-ggplot(data = vss_jan_june_2020, aes(x = Date_collected, y = VSS_mgL, fill = Site))+
-  geom_boxplot(width= 0.5)+
-  geom_jitter(width = 0.2)+
-  theme_bw(base_size = 10)+
-  facet_wrap(~Site, scale="free", nrow = 8)
-
-ggplot(data = vss_july_dec_2020, aes(x = VSS_mgL, y = Date_collected, fill = Site))+
-  geom_boxplot(alpha = .5, width = 0.1, aes(col=Site))+
-  geom_jitter(width = 0.2, aes(col=Site))+
-  theme_bw(base_size = 10)+
-  coord_flip()+
-  facet_wrap(~Site, scale="free", nrow = 8)
+ggplot(data = vss_jan_june_2020, aes(x = Date_collected, y = VSS_mgL))+
+  geom_point(aes(col=Site), size = 1)+
+  theme_bw(base_size = 10)
 
 ggplot(data = vss_july_dec_2020, aes(x = Date_collected, y = VSS_mgL))+
   geom_point(aes(col=Site), size = 1)+
-  theme_bw(base_size = 10)+
-  facet_wrap(~Site, scale="free", nrow = 8)
-
-ggplot(data = baby_marsh_vss_data_jan_june_2019, aes(x = Date_collected, y = VSS_mgL, full = Site))+
-  geom_boxplot()+
-  geom_jitter(width = 0.2, aes(col=Site))+
   theme_bw(base_size = 10)
 
+#graphing sums per 6 month intervals with error bars
+ggplot(data = vss_jan_june_2019_sum, aes(x = Date_collected, y = mean_vss))+
+  geom_errorbar(aes(ymin = mean_vss - sd_vss, ymax = mean_vss + sd_vss, col = Site), width = 0.3)+
+  geom_point(aes(col=Site), size = 1)+
+  labs(x = "Date Collected", y = "Mean VSS (mg/L)", title = "Dec 2018 - June 2019 VSS(mg/L)")+
+  theme_bw(base_size = 10)
+
+ggplot(data = vss_july_dec_2019_sum, aes(x = Date_collected, y = mean_vss))+
+  geom_errorbar(aes(ymin = mean_vss - sd_vss, ymax = mean_vss + sd_vss, col = Site), width = 0.3)+
+  geom_point(aes(col=Site), size = 1)+
+  labs(x = "Date Collected", y = "Mean VSS (mg/L)", title = "July - Dec 2019 VSS(mg/L)")+
+  theme_bw(base_size = 10)
+
+ggplot(data = vss_jan_june_2020_sum, aes(x = Date_collected, y = mean_vss))+
+  geom_errorbar(aes(ymin = mean_vss - sd_vss, ymax = mean_vss + sd_vss, col = Site), width = 0.3)+
+  geom_point(aes(col=Site), size = 1)+
+  labs(x = "Date Collected", y = "Mean VSS (mg/L)", title = "Jan - June 2020 VSS(mg/L)")+
+  theme_bw(base_size = 10)
+
+ggplot(data = vss_july_dec_2020_sum, aes(x = Date_collected, y = mean_vss))+
+  geom_errorbar(aes(ymin = mean_vss - sd_vss, ymax = mean_vss + sd_vss, col = Site), width = 0.3)+
+  geom_point(aes(col=Site), size = 1)+
+  labs(x = "Date Collected", y = "Mean VSS (mg/L)", title = "July - Dec 2020 VSS(mg/L)")+
+  theme_bw(base_size = 10)
 
 #####graphing each site separately because for each 
 #####sample date there are 3 repetition per site 

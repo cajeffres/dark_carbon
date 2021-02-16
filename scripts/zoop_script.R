@@ -164,6 +164,16 @@ z <- ggplot(drkcbnzoop.sum, aes(x=Date, y=Total, color=Group)) + geom_bar(stat="
 
 z + facet_grid(rows = vars(Site)) 
 
+#export
+png("Totalpersite.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+z <- ggplot(drkcbnzoop.sum, aes(x=Date, y=Total, color=Group)) + geom_bar(stat="identity") +
+  theme_bw() 
+
+z + facet_grid(rows = vars(Site)) 
+
+dev.off()
+
 #is an area plot better?
 ggplot(drkcbnzoop.sum, aes(x = Date, y = Total, color=Group)) + geom_area() +
   ggtitle("Yearly Abundance") +

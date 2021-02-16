@@ -51,7 +51,7 @@ drkcbnabundance<-abundance(zoop.dc)
 
 #Group by site, date, and order 
 drkcbnzoop.sum<-drkcbnabundance %>% 
-  group_by(Site, Date, Order) %>% 
+  group_by(Site, Date, Order, Group) %>% 
   summarise(Total=sum(ind_m3)) 
 
 na.omit(drkcbnzoop.sum)
@@ -158,5 +158,17 @@ ggplot(data = sac, aes(x = Date, y = Total, fill = Order)) +
   scale_y_continuous(label=comma) +
   theme_classic()
 
-#Group together large and small cladocera for in depth comparision  
+#abundance per site over time - Feb 10th update
+z <- ggplot(drkcbnzoop.sum, aes(x=Date, y=Total, color=Group)) + geom_bar(stat="identity") +
+  theme_bw() 
+
+z + facet_grid(rows = vars(Site)) 
+
+#is an area plot better?
+ggplot(drkcbnzoop.sum, aes(x = Date, y = Total, color=Group)) + geom_area() +
+  ggtitle("Yearly Abundance") +
+  scale_x_date(date_labels = "%b-%y", breaks= "6 months") +
+  scale_y_continuous(label=comma) +
+  theme_classic()
+
 

@@ -174,11 +174,22 @@ z + facet_grid(rows = vars(Site))
 
 dev.off()
 
-#is an area plot better?
-ggplot(drkcbnzoop.sum, aes(x = Date, y = Total, color=Group)) + geom_area() +
-  ggtitle("Yearly Abundance") +
-  scale_x_date(date_labels = "%b-%y", breaks= "6 months") +
-  scale_y_continuous(label=comma) +
-  theme_classic()
+#abundance per site over time - Feb 20th update
+z <- ggplot(drkcbnzoop.sum, aes(x=Date, y=Total, color=Group, fill=Group)) +
+  geom_bar(stat="identity") +
+  ylab(expression("Total Abundance (ind/m^3~)")) +
+  theme_bw() 
+
+
+z + facet_grid(rows = vars(Site)) +
+  theme(strip.text.y = element_text(size = 5, face="bold"))
+
+#export 
+
+png("Total Abundance.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+z + facet_grid(rows = vars(Site)) 
+
+dev.off()
 
 

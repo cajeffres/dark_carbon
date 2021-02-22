@@ -289,6 +289,196 @@ c + facet_grid(cols = vars(Site)) +
 
 dev.off()
 
+#new work with WQ updated on Feb 18th
+#goal get all sites on one graph and distingush by colors
+
+#pH
+ggplot(data = darkcbn.wq, aes(x = Date, y = pH), position="dodge")+
+  geom_point(aes(col=Site), size=1)+
+  labs(x = "Date ", y = "pH", title = "pH")+
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  theme_bw(base_size = 10)
+
+#export pH graph
+png("pH.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = darkcbn.wq, aes(x = Date, y = pH), position="dodge")+
+  geom_point(aes(col=Site), size=1)+
+  labs(x = "Date ", y = "pH", title = "pH")+
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  theme_bw(base_size = 10)
+
+dev.off()
+
+#chl
+ggplot(data = darkcbn.wq, aes(x = Date, y = Chl), position="dodge") +
+  geom_point(aes(col=Site), size=1)+ 
+  ylim(0,12.5) +
+  labs(x = "Date ", y = "Chlorophyll", title = "Chlorphyll")+
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  theme_bw(base_size = 10)
+
+#export CHL 
+png("chl.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = darkcbn.wq, aes(x = Date, y = Chl), position="dodge") +
+  geom_point(aes(col=Site), size=1)+ 
+  ylim(0,12.5) +
+  labs(x = "Date ", y = "Chlorophyll", title = "Chlorphyll")+
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  theme_bw(base_size = 10)
+
+dev.off()
+
+#EC
+ggplot(data = darkcbn.wq, aes(x = Date, y = EC)) +
+  geom_point(aes(col=Site), size=1)+ 
+  labs(x = "Date ", y = "Electrical Conductivity (µs/cm)", title = "Electrical Conductivity")+
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  theme_bw(base_size = 10)
+
+#export EC
+png("EC.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = darkcbn.wq, aes(x = Date, y = EC)) +
+  geom_point(aes(col=Site), size=1)+ 
+  labs(x = "Date ", y = "Electrical Conductivity (µs/cm)", title = "Electrical Conductivity")+
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  theme_bw(base_size = 10)
+
+dev.off()
+
+#Turbidity
+ggplot(data = darkcbn.wq, aes(x = Date, y = Turbidity)) +
+  geom_point(aes(col=Site), size=1) + 
+  ylim(0,125) +
+  labs(x = "Date ", y = "Turbidity (NTU)", title = "Turbidity")+
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  theme_bw(base_size = 10)
+
+#export turbidity
+png("turbidity.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = darkcbn.wq, aes(x = Date, y = Turbidity)) +
+  geom_point(aes(col=Site), size=1) + 
+  ylim(0,125) +
+  labs(x = "Date ", y = "Turbidity (NTU)", title = "Turbidity")+
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  theme_bw(base_size = 10)
+
+dev.off()
+
+#DOC
+ggplot(data = darkcbn.wq, aes(x = Date, y = DOC)) +
+  geom_point(aes(col=Site), size=1) + 
+  ylim(0,20) +
+  labs(x = "Date ", y = "DOC (ppm)", title = "DOC")+
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  theme_bw(base_size = 10)
+
+#export DOC
+png("DOC.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = darkcbn.wq, aes(x = Date, y = DOC)) +
+  geom_point(aes(col=Site), size=1) + 
+  ylim(0,20) +
+  labs(x = "Date ", y = "DOC (ppm)", title = "DOC")+
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  theme_bw(base_size = 10)
+
+dev.off()
+
+#PO4
+ggplot(data = darkcbn.wq, aes(x = Date, y = PO4)) +
+  geom_point(aes(col=Site), size=1) + 
+  labs(x = "Date ", y = "PO4 (ppm)", title = "Phosphate")+
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  theme_bw(base_size = 10)
+
+#export PO4
+png("PO4.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = darkcbn.wq, aes(x = Date, y = PO4)) +
+  geom_point(aes(col=Site), size=1) + 
+  labs(x = "Date ", y = "PO4 (ppm)", title = "Phosphate")+
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  theme_bw(base_size = 10)
+
+dev.off()
+
+#TP
+ggplot(data = darkcbn.wq, aes(x = Date, y = TP)) +
+  geom_point(aes(col=Site), size=1) + 
+  labs(x = "Date ", y = "TP (ppm)", title = "Total Phosphorus")+
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  theme_bw(base_size = 10)
+
+#export
+png("TP.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = darkcbn.wq, aes(x = Date, y = TP)) +
+  geom_point(aes(col=Site), size=1) + 
+  labs(x = "Date ", y = "TP (ppm)", title = "Total Phosphorus")+
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  theme_bw(base_size = 10)
+
+dev.off()
+
+#NO3
+ggplot(data = darkcbn.wq, aes(x = Date, y = NO3)) +
+  geom_point(aes(col=Site), size=1) + 
+  labs(x = "Date ", y = "Nitrate (ppm)", title = "Nitrate")+
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  theme_bw(base_size = 10)
+
+#export NO3
+png("NO3.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = darkcbn.wq, aes(x = Date, y = NO3)) +
+  geom_point(aes(col=Site), size=1) + 
+  labs(x = "Date ", y = "Nitrate (ppm)", title = "Nitrate")+
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  theme_bw(base_size = 10)
+
+dev.off()
+
+#NH4
+ggplot(data = darkcbn.wq, aes(x = Date, y = NH4)) +
+  geom_point(aes(col=Site), size=1) + 
+  labs(x = "Date ", y = "Ammonium (ppm)", title = "Ammonium")+
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  theme_bw(base_size = 10)
+
+#export NH4
+png("NH4.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = darkcbn.wq, aes(x = Date, y = NH4)) +
+  geom_point(aes(col=Site), size=1) + 
+  labs(x = "Date ", y = "Ammonium (ppm)", title = "Ammonium")+
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  theme_bw(base_size = 10)
+
+dev.off()
+
+
+#TN
+ggplot(data = darkcbn.wq, aes(x = Date, y = TN), position="dodge")+
+  geom_point(aes(col=Site), size=1)+
+  labs(x = "Date ", y = "TN (ppm)", title = "Total Nitrogen")+
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  theme_bw(base_size = 10)
+
+#export
+png("TN.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = darkcbn.wq, aes(x = Date, y = TN), position="dodge")+
+  geom_point(aes(col=Site), size=1)+
+  labs(x = "Date ", y = "TN (ppm)", title = "Total Nitrogen")+
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  theme_bw(base_size = 10)
+
+dev.off()
+
 
 
 ### Dark Carbon VSS data over time 

@@ -180,7 +180,7 @@ library(ggplot2)
 # Importing VSS data ------------------------------------------------------
 
 #reading the csv in
-vss_data = read.csv("data/2021_01_04_VSS_data_NSC.csv",
+vss_data = read.csv("data/2021_02_18_VSS_data_NSC.csv",
                     sep = ",", header = TRUE, stringsAsFactors = FALSE)
 
 
@@ -197,7 +197,9 @@ vss_data$Date_collected <- ymd(vss_data$Date_collected)
 
 
 vss_data_group <- group_by(vss_data, Site, Date_collected)
-vss_sum <- summarise(vss_data_group, mean_vss = mean(VSS_mgL), sd_vss = sd(VSS_mgL))
+vss_sum <- summarise(vss_data_group, mean_vss = mean(VSS_mgL), sd_vss = sd(VSS_mgL), 
+                     mean_poc = mean(POC_mgL), sd_poc = sd(POC_mgL))
+
 
 # Filter by Date and Site ----------------------------------------------------------
 
@@ -227,11 +229,7 @@ vss_jan_june_2020_sum<- vss_sum %>%
 vss_july_dec_2020_sum <- vss_sum %>% 
   filter(Date_collected >= "2020-07-01", Date_collected <= "2020-12-31")
 
-vss_2019_no_Knaggs <- vss_2019 %>%
-  filter(Site != "KNAGGS-F6")
 
-vss_2020_no_Knaggs <- vss_2020 %>%
-  filter(Site != "KNAGGS-F3")
 
 #trying to isolate BABYMARSH
 
@@ -261,13 +259,8 @@ cos_tri_vss_data <- vss_data %>%
 
 #trying to isolate KNAGGS-F6
 
-knaggs_f6_vss_data <- vss_data %>% 
-  filter(Site == c("KNAGGS-F6"))
-
-#trying to isolate KNAGGS-F3
-
-knaggs_f3_vss_data <- vss_data %>% 
-  filter(Site == c("KNAGGS-F3"))
+knaggs_vss_data <- vss_data %>% 
+  filter(Site == c("KNAGGS"))
 
 #trying to isolate WENDELLS
 
@@ -313,16 +306,20 @@ ggplot(data = vss_july_dec_2020, aes(x = Date_collected, y = VSS_mgL))+
   geom_point(aes(col=Site), size = 1)+
   theme_bw(base_size = 10)
 
+
+
+# Graphing VSS means and error bars  --------------------------------------
+
 #graphing sums per 6 month intervals with error bars
-ggplot(data = vss_jan_june_2019_sum, aes(x = Date_collected, y = mean_vss))+
-  geom_errorbar(aes(ymin = mean_vss - sd_vss, ymax = mean_vss + sd_vss, col = Site), width = 0.3)+
-  geom_point(aes(col=Site), size = 1)+
+ggplot(data = vss_jan_june_2019_sum, aes(x = Date_collected, y = mean_vss, group = Site))+
+  geom_errorbar(aes(ymin = mean_vss - sd_vss, ymax = mean_vss + sd_vss, col = Site), position = "dodge",  width = 0.3)+
+  geom_point(aes(col=Site), size = 1, position = "dodge")+
   labs(x = "Date Collected", y = "Mean VSS (mg/L)", title = "Dec 2018 - June 2019 VSS(mg/L)")+
   theme_bw(base_size = 10)
 
-ggplot(data = vss_july_dec_2019_sum, aes(x = Date_collected, y = mean_vss))+
-  geom_errorbar(aes(ymin = mean_vss - sd_vss, ymax = mean_vss + sd_vss, col = Site), width = 0.3)+
-  geom_point(aes(col=Site), size = 1)+
+ggplot(data = vss_july_dec_2019_sum, aes(x = Date_collected, y = mean_vss, group = Site))+
+  geom_errorbar(aes(ymin = mean_vss - sd_vss, ymax = mean_vss + sd_vss, col = Site), width = 0.3, position = "dodge")+
+  geom_point(aes(col=Site), size = 1, position = "dodge")+
   labs(x = "Date Collected", y = "Mean VSS (mg/L)", title = "July - Dec 2019 VSS(mg/L)")+
   theme_bw(base_size = 10)
 
@@ -336,6 +333,34 @@ ggplot(data = vss_july_dec_2020_sum, aes(x = Date_collected, y = mean_vss))+
   geom_errorbar(aes(ymin = mean_vss - sd_vss, ymax = mean_vss + sd_vss, col = Site), width = 0.3)+
   geom_point(aes(col=Site), size = 1)+
   labs(x = "Date Collected", y = "Mean VSS (mg/L)", title = "July - Dec 2020 VSS(mg/L)")+
+  theme_bw(base_size = 10)
+
+
+# Graphing POC with means and error bars ----------------------------------
+
+#graphing sums per 6 month intervals with error bars
+ggplot(data = vss_jan_june_2019_sum, aes(x = Date_collected, y = mean_poc))+
+  geom_errorbar(aes(ymin = mean_poc - sd_poc, ymax = mean_poc + sd_poc, col = Site), width = 0.3)+
+  geom_point(aes(col=Site), size = 1)+
+  labs(x = "Date Collected", y = "Mean POC (mg/L)", title = "Dec 2018 - June 2019 POC(mg/L)")+
+  theme_bw(base_size = 10)
+
+ggplot(data = vss_july_dec_2019_sum, aes(x = Date_collected, y = mean_poc))+
+  geom_errorbar(aes(ymin = mean_poc - sd_poc, ymax = mean_poc + sd_poc, col = Site), width = 0.3)+
+  geom_point(aes(col=Site), size = 1)+
+  labs(x = "Date Collected", y = "Mean POC (mg/L)", title = "July - Dec 2019 POC(mg/L)")+
+  theme_bw(base_size = 10)
+
+ggplot(data = vss_jan_june_2020_sum, aes(x = Date_collected, y = mean_poc))+
+  geom_errorbar(aes(ymin = mean_poc - sd_poc, ymax = mean_poc + sd_poc, col = Site), width = 0.3)+
+  geom_point(aes(col=Site), size = 1)+
+  labs(x = "Date Collected", y = "Mean POC (mg/L)", title = "Jan - June 2020 POC(mg/L)")+
+  theme_bw(base_size = 10)
+
+ggplot(data = vss_july_dec_2020_sum, aes(x = Date_collected, y = mean_poc))+
+  geom_errorbar(aes(ymin = mean_poc - sd_poc, ymax = mean_poc + sd_poc, col = Site), width = 0.3)+
+  geom_point(aes(col=Site), size = 1)+
+  labs(x = "Date Collected", y = "Mean POC (mg/L)", title = "July - Dec 2020 POC(mg/L)")+
   theme_bw(base_size = 10)
 
 #####graphing each site separately because for each 
@@ -481,7 +506,7 @@ ggplot(data = wendells_vss_data, aes(x = Date_collected, y = POC_mgL))+
 # DOC ---------------------------------------------------------------------
 
 
-doc_data = read.csv("data/2021-01-12_BioAvail_SUVA254_NSC.csv", 
+doc_data = read.csv("data/2021-02-11_BioAvail_SUVA254_NSC.csv", 
                     sep = ",", header = TRUE, stringsAsFactors = FALSE)
 
 

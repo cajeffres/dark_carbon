@@ -506,7 +506,7 @@ ggplot(data = wendells_vss_data, aes(x = Date_collected, y = POC_mgL))+
 # DOC ---------------------------------------------------------------------
 
 
-doc_data = read.csv("data/2021-02-11_BioAvail_SUVA254_NSC.csv", 
+doc_data = read.csv("data/2021-02-25_BioAvail_SUVA254_NSC.csv", 
                     sep = ",", header = TRUE, stringsAsFactors = FALSE)
 
 
@@ -528,10 +528,11 @@ doc_data$Date.Collected <- mdy(doc_data$Date.Collected)
 
 doc_data$Date.Sampled <- mdy(doc_data$Date.Sampled)
 
+
 #Remove Floating Peats Sites 
 doc_data <- doc_data %>% 
   filter(Location %in% c("BABYMARSH", "MOK-US-RR", "COS-BEACH", "KNAGGS-F6", 
-                         "KNAGGS-F3", "DI-BLANK", "COS-TRI", "SAC-XS", 
+                         "KNAGGS", "DI-BLANK", "COS-TRI", "SAC-XS", 
                          "WENDELLS", "COS-TRIDISCON", "LUCO", "314_COS" ))
 
 #moving Repetition column next to Location column 
@@ -682,6 +683,70 @@ ggplot(data = oct_2020_doc, aes(x = Date.Sampled, y = DOC.ppm))+
   geom_point(aes(col=Site_Rep), size=1)+
   geom_line(aes(group=Site_Rep, col=Site_Rep))+
   labs(x = "Date Subsampled", y = "DOC (ppm)", title = "October 2020 DOC")+
+  theme_bw(base_size = 10)
+
+
+
+# SUVA  -------------------------------------------------------------------
+
+ggplot(data = jan_2019_doc, aes(x = Date.Sampled, y = SUVA.254))+
+  geom_point(aes(col=Site_Rep), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site_Rep))+
+  labs(x = "Date Subsampled", y = "SUVA at Absorption 254", title = "January-March 2019 DOC")+
+  theme_bw(base_size = 10)
+
+ggplot(data = april_2019_doc, aes(x = Date.Sampled, y = SUVA.254))+
+  geom_point(aes(col=Site_Rep), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site_Rep))+
+  labs(x = "Date Subsampled", y = "SUVA at Absorption 254", title = "April 2019 DOC")+
+  theme_bw(base_size = 10)
+
+ggplot(data = june_2019_doc, aes(x = Date.Sampled, y = SUVA.254))+
+  geom_point(aes(col=Site_Rep), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site_Rep))+
+  labs(x = "Date Subsampled", y = "SUVA at Absorption 254", title = "June 2019 DOC")+
+  theme_bw(base_size = 10)
+
+ggplot(data = sept_2019_doc, aes(x = Date.Sampled, y = SUVA.254))+
+  geom_point(aes(col=Site_Rep), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site_Rep))+
+  labs(x = "Date Subsampled", y = "SUVA at Absorption 254", title = "September 2019 DOC")+
+  theme_bw(base_size = 10)
+
+ggplot(data = oct_2019_doc, aes(x = Date.Sampled, y = SUVA.254))+
+  geom_point(aes(col=Site_Rep), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site_Rep))+
+  labs(x = "Date Subsampled", y = "SUVA at Absorption 254", title = "October 2019 DOC")+
+  theme_bw(base_size = 10)
+
+ggplot(data = dec_2019_doc, aes(x = Date.Sampled, y = SUVA.254))+
+  geom_point(aes(col=Site_Rep), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site_Rep))+
+  labs(x = "Date Subsampled", y = "SUVA at Absorption 254", title = "December 2019 - January 2020 DOC")+
+  theme_bw(base_size = 10) 
+
+ggplot(data = feb_2020_doc, aes(x = Date.Sampled, y = SUVA.254))+
+  geom_point(aes(col=Site_Rep), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site_Rep))+
+  labs(x = "Date Subsampled", y = "SUVA at Absorption 254", title = "February 2020 DOC")+
+  theme_bw(base_size = 10)
+
+ggplot(data = march_2020, aes(x = Date.Sampled, y = SUVA.254))+
+  geom_point(aes(col=Site_Rep), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site_Rep))+
+  labs(x = "Date Subsampled", y = "SUVA at Absorption 254", title = "March 2020 DOC")+
+  theme_bw(base_size = 10)
+
+ggplot(data = june_2020_doc, aes(x = Date.Sampled, y = SUVA.254))+
+  geom_point(aes(col=Site_Rep), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site_Rep))+
+  labs(x = "Date Subsampled", y = "SUVA at Absorption 254", title = "June 2020 DOC")+
+  theme_bw(base_size = 10)
+
+ggplot(data = oct_2020_doc, aes(x = Date.Sampled, y = SUVA.254))+
+  geom_point(aes(col=Site_Rep), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site_Rep))+
+  labs(x = "Date Subsampled", y = "SUVA at Absorption 254", title = "October 2020 DOC")+
   theme_bw(base_size = 10)
 
 # Something that showed up randomly ---------------------------------------

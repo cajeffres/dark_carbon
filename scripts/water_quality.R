@@ -506,7 +506,7 @@ ggplot(data = wendells_vss_data, aes(x = Date_collected, y = POC_mgL))+
 # DOC ---------------------------------------------------------------------
 
 
-doc_data = read.csv("data/2021-02-25_BioAvail_SUVA254_NSC.csv", 
+doc_data = read.csv("data/2021-03-04_BioAvail_SUVA254_NSC.csv", 
                     sep = ",", header = TRUE, stringsAsFactors = FALSE)
 
 
@@ -534,6 +534,7 @@ doc_data <- doc_data %>%
   filter(Location %in% c("BABYMARSH", "MOK-US-RR", "COS-BEACH", "KNAGGS-F6", 
                          "KNAGGS", "DI-BLANK", "COS-TRI", "SAC-XS", 
                          "WENDELLS", "COS-TRIDISCON", "LUCO", "314_COS" ))
+
 
 #moving Repetition column next to Location column 
 doc_data <- doc_data %>%
@@ -608,7 +609,7 @@ feb_2020_doc <- doc_data %>%
 #2020-03-22 BABYMARSH, MOK-US-RR, COS-BEACH DOC
 #2020-03-23 SAC-XS, KNAGGS DOC 
 
-march_2020 <- doc_data %>% 
+march_2020_doc <- doc_data %>% 
   filter(Date.Collected >= "2020-03-22", Date.Collected <= "2020-03-23")
 
 #2020-06-09 BABYMARSH, MOK-US-RR, COS-BEACH, SAC-XS DOC 
@@ -689,64 +690,153 @@ ggplot(data = oct_2020_doc, aes(x = Date.Sampled, y = DOC.ppm))+
 
 # SUVA  -------------------------------------------------------------------
 
-ggplot(data = jan_2019_doc, aes(x = Date.Sampled, y = SUVA.254))+
+#remove NA values 
+
+suva_data <- doc_data %>% 
+  filter(SUVA.254 != "NA")
+
+
+# SUVA division -----------------------------------------------------------
+
+#2019-01-04 COS-BEACH, MOK-US-RR DOC and DOC+N
+#2019-01-08 KNAGGS-F6 DOC and DOC+N
+#2019-01-12 DI
+#2019-01-17 COS-TRI DOC and DOC+N
+#2019-01-28 SAC-XS DOC and DOC+N 
+#2019-01-29 KNAGGS-F6 DOC and DOC+N
+#2019-02-28 BABYMARSH DOC and DOC+N
+
+#2019-01-31 COSTRIDISCON DOC and DOC+N 
+#2019-02-19 LUCO
+#2019-03-14 314_COS DOC and DOC+N 
+
+
+jan_2019_suva <- suva_data %>%
+  filter(Date.Collected >= "2019-01-04", Date.Collected <= "2019-03-14")
+
+
+#2019-04-08 SAC-XS DOC
+#2019-04-09 BABYMARSH DOC
+#2019-04-10 COS-TRI, WENNDELS, KNAGGS_F6 DOC
+#2019-04-11 COS-BEACH, MOK-US-RR DOC
+#2019-04-22 DI
+
+april_2019_suva <- suva_data %>% 
+  filter(Date.Collected >= "2019-04-08", Date.Collected <= "2019-04-22")
+
+#2019-06-06 COS-TRI DOC
+#2019-06-13 COS-TRI DOC
+#2019-06-18 COS-TRI DOC
+
+june_2019_suva <- suva_data %>% 
+  filter(Date.Collected >= "2019-06-06", Date.Collected <= "2019-06-18")
+
+#2019-09-10 BABYMARSH, MOK-US-RR, COS-BEACH, SAC-XS DOC 
+
+sept_2019_suva <- suva_data %>% 
+  filter(Date.Collected == "2019-09-10")
+
+#2019-10-15 BABYMARSH, MOK-US-RR, COS-BEACH, SAC-XS DOC 
+#2019-10-30 DI
+
+oct_2019_suva <- suva_data %>% 
+  filter(Date.Collected >= "2019-10-15", Date.Collected <= "2019-10-30")
+
+#2019-12-09 WENDELS DOC
+#2019-12-10 BABYMARSH, MOK-US-RR, COS-BEACH, SAC-XS DOC 
+#2020-01-08 KNAGGS DOC
+
+dec_2019_suva <- suva_data %>% 
+  filter(Date.Collected >= "2019-12-09", Date.Collected <= "2020-01-08")
+
+#2020-02-10 MOK-US-RR, COS-BEACH, KNAGGS DOC
+#2020-02-11 Baby Marsh DOC
+#2020-02-12 SAC-XS DOC
+#2020-02-15 DI
+
+feb_2020_suva <- suva_data %>% 
+  filter(Date.Collected >= "2020-02-10", Date.Collected <= "2020-02-15")
+
+#2020-03-22 BABYMARSH, MOK-US-RR, COS-BEACH DOC
+#2020-03-23 SAC-XS, KNAGGS DOC 
+
+march_2020_suva <- suva_data %>% 
+  filter(Date.Collected >= "2020-03-22", Date.Collected <= "2020-03-23")
+
+#2020-06-09 BABYMARSH, MOK-US-RR, COS-BEACH, SAC-XS DOC 
+#2020-06-16 DI 
+
+june_2020_suva <- suva_data %>% 
+  filter(Date.Collected >= "2020-06-09", Date.Collected <= "2020-06-16")
+
+#2020-10-07 BABYMARSH, MOK-US-RR, COS-BEACH, SAC-XS DOC and DI
+
+oct_2020_suva <- suva_data %>% 
+  filter(Date.Collected == "2020-10-07")
+
+    
+
+# SUVA graphing -----------------------------------------------------------
+
+
+ggplot(data = jan_2019_suva, aes(x = Date.Sampled, y = SUVA.254))+
   geom_point(aes(col=Site_Rep), size=1)+
   geom_line(aes(group=Site_Rep, col=Site_Rep))+
-  labs(x = "Date Subsampled", y = "SUVA at Absorption 254", title = "January-March 2019 DOC")+
+  labs(x = "Date Subsampled", y = "SUVA at Absorption 254", title = "January-March 2019 SUVA")+
   theme_bw(base_size = 10)
 
-ggplot(data = april_2019_doc, aes(x = Date.Sampled, y = SUVA.254))+
+ggplot(data = april_2019_suva, aes(x = Date.Sampled, y = SUVA.254))+
   geom_point(aes(col=Site_Rep), size=1)+
   geom_line(aes(group=Site_Rep, col=Site_Rep))+
-  labs(x = "Date Subsampled", y = "SUVA at Absorption 254", title = "April 2019 DOC")+
+  labs(x = "Date Subsampled", y = "SUVA at Absorption 254", title = "April 2019 SUVA")+
   theme_bw(base_size = 10)
 
-ggplot(data = june_2019_doc, aes(x = Date.Sampled, y = SUVA.254))+
+ggplot(data = june_2019_suva, aes(x = Date.Sampled, y = SUVA.254))+
   geom_point(aes(col=Site_Rep), size=1)+
   geom_line(aes(group=Site_Rep, col=Site_Rep))+
-  labs(x = "Date Subsampled", y = "SUVA at Absorption 254", title = "June 2019 DOC")+
+  labs(x = "Date Subsampled", y = "SUVA at Absorption 254", title = "June 2019 SUVA")+
   theme_bw(base_size = 10)
 
-ggplot(data = sept_2019_doc, aes(x = Date.Sampled, y = SUVA.254))+
+ggplot(data = sept_2019_suva, aes(x = Date.Sampled, y = SUVA.254))+
   geom_point(aes(col=Site_Rep), size=1)+
   geom_line(aes(group=Site_Rep, col=Site_Rep))+
-  labs(x = "Date Subsampled", y = "SUVA at Absorption 254", title = "September 2019 DOC")+
+  labs(x = "Date Subsampled", y = "SUVA at Absorption 254", title = "September 2019 SUVA")+
   theme_bw(base_size = 10)
 
-ggplot(data = oct_2019_doc, aes(x = Date.Sampled, y = SUVA.254))+
+ggplot(data = oct_2019_suva, aes(x = Date.Sampled, y = SUVA.254))+
   geom_point(aes(col=Site_Rep), size=1)+
   geom_line(aes(group=Site_Rep, col=Site_Rep))+
-  labs(x = "Date Subsampled", y = "SUVA at Absorption 254", title = "October 2019 DOC")+
+  labs(x = "Date Subsampled", y = "SUVA at Absorption 254", title = "October 2019 SUVA")+
   theme_bw(base_size = 10)
 
-ggplot(data = dec_2019_doc, aes(x = Date.Sampled, y = SUVA.254))+
+ggplot(data = dec_2019_suva, aes(x = Date.Sampled, y = SUVA.254))+
   geom_point(aes(col=Site_Rep), size=1)+
   geom_line(aes(group=Site_Rep, col=Site_Rep))+
-  labs(x = "Date Subsampled", y = "SUVA at Absorption 254", title = "December 2019 - January 2020 DOC")+
+  labs(x = "Date Subsampled", y = "SUVA at Absorption 254", title = "December 2019 - January 2020 SUVA")+
   theme_bw(base_size = 10) 
 
-ggplot(data = feb_2020_doc, aes(x = Date.Sampled, y = SUVA.254))+
+ggplot(data = feb_2020_suva, aes(x = Date.Sampled, y = SUVA.254))+
   geom_point(aes(col=Site_Rep), size=1)+
   geom_line(aes(group=Site_Rep, col=Site_Rep))+
-  labs(x = "Date Subsampled", y = "SUVA at Absorption 254", title = "February 2020 DOC")+
+  labs(x = "Date Subsampled", y = "SUVA at Absorption 254", title = "February 2020 SUVA")+
   theme_bw(base_size = 10)
 
-ggplot(data = march_2020, aes(x = Date.Sampled, y = SUVA.254))+
+ggplot(data = march_2020_suva, aes(x = Date.Sampled, y = SUVA.254))+
   geom_point(aes(col=Site_Rep), size=1)+
   geom_line(aes(group=Site_Rep, col=Site_Rep))+
-  labs(x = "Date Subsampled", y = "SUVA at Absorption 254", title = "March 2020 DOC")+
+  labs(x = "Date Subsampled", y = "SUVA at Absorption 254", title = "March 2020 SUVA")+
   theme_bw(base_size = 10)
 
-ggplot(data = june_2020_doc, aes(x = Date.Sampled, y = SUVA.254))+
+ggplot(data = june_2020_suva, aes(x = Date.Sampled, y = SUVA.254))+
   geom_point(aes(col=Site_Rep), size=1)+
   geom_line(aes(group=Site_Rep, col=Site_Rep))+
-  labs(x = "Date Subsampled", y = "SUVA at Absorption 254", title = "June 2020 DOC")+
+  labs(x = "Date Subsampled", y = "SUVA at Absorption 254", title = "June 2020 SUVA")+
   theme_bw(base_size = 10)
 
-ggplot(data = oct_2020_doc, aes(x = Date.Sampled, y = SUVA.254))+
+ggplot(data = oct_2020_suva, aes(x = Date.Sampled, y = SUVA.254))+
   geom_point(aes(col=Site_Rep), size=1)+
   geom_line(aes(group=Site_Rep, col=Site_Rep))+
-  labs(x = "Date Subsampled", y = "SUVA at Absorption 254", title = "October 2020 DOC")+
+  labs(x = "Date Subsampled", y = "SUVA at Absorption 254", title = "October 2020 SUVA")+
   theme_bw(base_size = 10)
 
 # Something that showed up randomly ---------------------------------------

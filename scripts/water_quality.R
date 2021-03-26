@@ -506,7 +506,7 @@ ggplot(data = wendells_vss_data, aes(x = Date_collected, y = POC_mgL))+
 # DOC ---------------------------------------------------------------------
 
 
-doc_data = read.csv("data/2021-03-04_BioAvail_SUVA254_NSC.csv", 
+doc_data = read.csv("data/2021-03-25_BioAvail_SUVA254_NSC.csv", 
                     sep = ",", header = TRUE, stringsAsFactors = FALSE)
 
 
@@ -668,7 +668,7 @@ ggplot(data = feb_2020_doc, aes(x = Date.Sampled, y = DOC.ppm))+
   labs(x = "Date Subsampled", y = "DOC (ppm)", title = "February 2020 DOC")+
   theme_bw(base_size = 10)
 
-ggplot(data = march_2020, aes(x = Date.Sampled, y = DOC.ppm))+
+ggplot(data = march_2020_doc, aes(x = Date.Sampled, y = DOC.ppm))+
   geom_point(aes(col=Site_Rep), size=1)+
   geom_line(aes(group=Site_Rep, col=Site_Rep))+
   labs(x = "Date Subsampled", y = "DOC (ppm)", title = "March 2020 DOC")+

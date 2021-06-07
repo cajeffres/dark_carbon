@@ -506,7 +506,7 @@ ggplot(data = wendells_vss_data, aes(x = Date_collected, y = POC_mgL))+
 # DOC ---------------------------------------------------------------------
 
 
-doc_data = read.csv("data/2021-06-01_BioAvail_SUVA254_NSC.csv", 
+doc_data = read.csv("data/2021-06-07_BioAvail_SUVA254_NSC.csv", 
                     sep = ",", header = TRUE, stringsAsFactors = FALSE)
 
 
@@ -538,11 +538,12 @@ doc_data <- doc_data %>%
 
 #moving Repetition column next to Location column 
 doc_data <- doc_data %>%
-  relocate(Rep.ID, .after = Location)
+  relocate(Rep.ID, .after = Site)
 
-#form a new column that is Location and Repetition 
+#form a new column that is Site and Repetition 
 doc_data <- doc_data  %>% 
-  unite("Site_Rep", c(Location, Rep.ID), sep = " ", remove = FALSE)
+  unite("Site_Rep", c(Site, Rep.ID), sep = " ", remove = FALSE)
+
 
 
 # Divide Samples into Quarters --------------------------------------------
@@ -561,7 +562,10 @@ doc_data <- doc_data  %>%
 
 
 jan_2019_doc <- doc_data %>%
-  filter(Date.Collected >= "2019-01-04", Date.Collected <= "2019-03-14")
+  filter(Date.Collected >= "2019-01-04", Date.Collected <= "2019-03-01")
+
+march_2019_doc <- doc_data %>%
+  filter(Date.Collected >= "2019-03-01", Date.Collected <= "2019-03-31")
 
 
 #2019-04-08 SAC-XS DOC
@@ -630,6 +634,12 @@ ggplot(data = jan_2019_doc, aes(x = Date.Sampled, y = DOC.ppm))+
   geom_point(aes(col=Site_Rep), size=1)+
   geom_line(aes(group=Site_Rep, col=Site_Rep))+
   labs(x = "Date Subsampled", y = "DOC (ppm)", title = "January-March 2019 DOC")+
+  theme_bw(base_size = 10)
+
+ggplot(data = march_2019_doc, aes(x = Date.Sampled, y = DOC.ppm))+
+  geom_point(aes(col=Site_Rep), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site_Rep))+
+  labs(x = "Date Subsampled", y = "DOC (ppm)", title = "March 2019 DOC")+
   theme_bw(base_size = 10)
 
 ggplot(data = april_2019_doc, aes(x = Date.Sampled, y = DOC.ppm))+
@@ -712,9 +722,10 @@ suva_data <- doc_data %>%
 
 
 jan_2019_suva <- suva_data %>%
-  filter(Date.Collected >= "2019-01-04", Date.Collected <= "2019-03-14")
+  filter(Date.Collected >= "2019-01-04", Date.Collected <= "2019-03-01")
 
-
+march_2019_suva <- suva_data %>%
+  filter(Date.Collected >= "2019-03-01", Date.Collected <= "2019-03-31")
 #2019-04-08 SAC-XS DOC
 #2019-04-09 BABYMARSH DOC
 #2019-04-10 COS-TRI, WENNDELS, KNAGGS_F6 DOC
@@ -780,6 +791,12 @@ oct_2020_suva <- suva_data %>%
 
 
 ggplot(data = jan_2019_suva, aes(x = Date.Sampled, y = SUVA.254))+
+  geom_point(aes(col=Site_Rep), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site_Rep))+
+  labs(x = "Date Subsampled", y = "SUVA at Absorption 254", title = "January-March 2019 SUVA")+
+  theme_bw(base_size = 10)
+
+ggplot(data = march_2019_suva, aes(x = Date.Sampled, y = SUVA.254))+
   geom_point(aes(col=Site_Rep), size=1)+
   geom_line(aes(group=Site_Rep, col=Site_Rep))+
   labs(x = "Date Subsampled", y = "SUVA at Absorption 254", title = "January-March 2019 SUVA")+

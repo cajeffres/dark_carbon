@@ -167,6 +167,9 @@ dev.off()
 
 # Loading Libraries -------------------------------------------------------
 
+
+install.packages("cowplot")
+
 library(tidyverse)
 library(rio)
 library(sf)
@@ -176,6 +179,7 @@ library(dbplyr)
 library(dplyr)
 library(magrittr)
 library(ggplot2)
+library(cowplot)
 
 # Importing VSS data ------------------------------------------------------
 
@@ -195,6 +199,12 @@ vss_data$POC_mgL <- as.numeric(vss_data$POC_mgL)
 
 vss_data$Date_collected <- ymd(vss_data$Date_collected)
 
+vss_data <- vss_data %>%
+  filter(Site != "LUCO", Site != "WENDELLS")
+
+vss_data <- vss_data %>%
+  filter(Date_collected >= "2019-01-01")
+
 
 vss_data_group <- group_by(vss_data, Site, Date_collected)
 vss_sum <- summarise(vss_data_group, mean_vss = mean(VSS_mgL), sd_vss = sd(VSS_mgL), 
@@ -211,11 +221,17 @@ vss_jan_june_2019 <- vss_data %>%
 vss_july_dec_2019 <- vss_data %>%
   filter(Date_collected >= "2019-07-01", Date_collected <= "2019-12-31")
 
+vss_2019  <- vss_data %>%
+  filter(Date_collected >= "2019-01-01", Date_collected <= "2019-12-31")
+
 vss_jan_june_2020 <- vss_data %>%
   filter(Date_collected >= "2020-01-01", Date_collected <= "2020-06-30")
 
 vss_july_dec_2020 <- vss_data %>% 
   filter(Date_collected >= "2020-07-01", Date_collected <= "2020-12-31")
+
+vss_2020  <- vss_data %>%
+  filter(Date_collected >= "2020-01-01", Date_collected <= "2020-12-31")
 
 vss_jan_june_2019_sum <- vss_sum %>%
   filter(Date_collected >= "2018-12-10", Date_collected <= "2019-06-30")
@@ -228,6 +244,12 @@ vss_jan_june_2020_sum<- vss_sum %>%
 
 vss_july_dec_2020_sum <- vss_sum %>% 
   filter(Date_collected >= "2020-07-01", Date_collected <= "2020-12-31")
+
+vss_2019_sum <- vss_sum %>%
+  filter(Date_collected >= "2018-12-10", Date_collected <= "2019-12-31")
+
+vss_2020_sum <- vss_sum %>%
+  filter(Date_collected >= "2020-01-01", Date_collected <= "2020-12-31")
 
 
 
@@ -315,24 +337,42 @@ ggplot(data = vss_jan_june_2019_sum, aes(x = Date_collected, y = mean_vss, group
   geom_errorbar(aes(ymin = mean_vss - sd_vss, ymax = mean_vss + sd_vss, col = Site), position = "dodge",  width = 0.3)+
   geom_point(aes(col=Site), size = 1, position = "dodge")+
   labs(x = "Date Collected", y = "Mean VSS (mg/L)", title = "Dec 2018 - June 2019 VSS(mg/L)")+
+  ylim(0, 30) +
   theme_bw(base_size = 10)
 
 ggplot(data = vss_july_dec_2019_sum, aes(x = Date_collected, y = mean_vss, group = Site))+
   geom_errorbar(aes(ymin = mean_vss - sd_vss, ymax = mean_vss + sd_vss, col = Site), width = 0.3, position = "dodge")+
   geom_point(aes(col=Site), size = 1, position = "dodge")+
   labs(x = "Date Collected", y = "Mean VSS (mg/L)", title = "July - Dec 2019 VSS(mg/L)")+
+  ylim(0, 30) +
   theme_bw(base_size = 10)
 
 ggplot(data = vss_jan_june_2020_sum, aes(x = Date_collected, y = mean_vss))+
   geom_errorbar(aes(ymin = mean_vss - sd_vss, ymax = mean_vss + sd_vss, col = Site), width = 0.3)+
   geom_point(aes(col=Site), size = 1)+
   labs(x = "Date Collected", y = "Mean VSS (mg/L)", title = "Jan - June 2020 VSS(mg/L)")+
+  ylim(0, 30) +
   theme_bw(base_size = 10)
 
 ggplot(data = vss_july_dec_2020_sum, aes(x = Date_collected, y = mean_vss))+
   geom_errorbar(aes(ymin = mean_vss - sd_vss, ymax = mean_vss + sd_vss, col = Site), width = 0.3)+
   geom_point(aes(col=Site), size = 1)+
   labs(x = "Date Collected", y = "Mean VSS (mg/L)", title = "July - Dec 2020 VSS(mg/L)")+
+  ylim(0, 30) +
+  theme_bw(base_size = 10) 
+
+ggplot(data = vss_2019_sum, aes(x = Date_collected, y = mean_vss, group = Site))+
+  geom_errorbar(aes(ymin = mean_vss - sd_vss, ymax = mean_vss + sd_vss, col = Site), position = "dodge",  width = 0.3)+
+  geom_point(aes(col=Site), size = 1, position = "dodge")+
+  labs(x = "Date Collected", y = "Mean VSS (mg/L)", title = "Jan 2019 - Dec 2019 VSS(mg/L)")+
+  ylim(0, 30) +
+  theme_bw(base_size = 10)
+
+ggplot(data = vss_2020_sum, aes(x = Date_collected, y = mean_vss, group = Site))+
+  geom_errorbar(aes(ymin = mean_vss - sd_vss, ymax = mean_vss + sd_vss, col = Site), position = "dodge",  width = 0.3)+
+  geom_point(aes(col=Site), size = 1, position = "dodge")+
+  labs(x = "Date Collected", y = "Mean VSS (mg/L)", title = "Jan 2020 - Dec 2020 VSS(mg/L)")+
+  ylim(0, 30) +
   theme_bw(base_size = 10)
 
 
@@ -506,7 +546,7 @@ ggplot(data = wendells_vss_data, aes(x = Date_collected, y = POC_mgL))+
 # DOC ---------------------------------------------------------------------
 
 
-doc_data = read.csv("data/2021-06-07_BioAvail_SUVA254_NSC.csv", 
+doc_data = read.csv("data/2021-06-30_BioAvail_SUVA254_NSC.csv", 
                     sep = ",", header = TRUE, stringsAsFactors = FALSE)
 
 
@@ -533,7 +573,7 @@ doc_data$Date.Sampled <- mdy(doc_data$Date.Sampled)
 doc_data <- doc_data %>% 
   filter(Location %in% c("BABYMARSH", "MOK-US-RR", "COS-BEACH", "KNAGGS-F6", 
                          "KNAGGS", "DI-BLANK", "COS-TRI", "SAC-XS", 
-                         "WENDELLS", "COS-TRIDISCON", "LUCO", "314_COS" ))
+                         "COS-TRIDISCON", "314_COS" ))
 
 
 #moving Repetition column next to Location column 
@@ -562,7 +602,7 @@ doc_data <- doc_data  %>%
 
 
 jan_2019_doc <- doc_data %>%
-  filter(Date.Collected >= "2019-01-04", Date.Collected <= "2019-03-01")
+  filter(Date.Collected >= "2019-01-04", Date.Collected <= "2019-03-31")
 
 march_2019_doc <- doc_data %>%
   filter(Date.Collected >= "2019-03-01", Date.Collected <= "2019-03-31")
@@ -697,6 +737,208 @@ ggplot(data = oct_2020_doc, aes(x = Date.Sampled, y = DOC.ppm))+
   theme_bw(base_size = 10)
 
 
+# Graphing DOC with consistent site colors --------------------------------
+
+
+ggplot(data = jan_2019_doc, aes(x = Date.Sampled, y = DOC.ppm))+
+  geom_point(aes(col=Site), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site))+
+  labs(x = "Date Subsampled", y = "DOC (ppm)", title = "January-March 2019 DOC")+
+  ylim(0, 50) +
+  theme_bw(base_size = 10)
+
+ggplot(data = march_2019_doc, aes(x = Date.Sampled, y = DOC.ppm))+
+  geom_point(aes(col=Site), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site))+
+  labs(x = "Date Subsampled", y = "DOC (ppm)", title = "March 2019 DOC")+
+  ylim(0, 50) +
+  theme_bw(base_size = 10)
+
+ggplot(data = april_2019_doc, aes(x = Date.Sampled, y = DOC.ppm))+
+  geom_point(aes(col=Site), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site))+
+  labs(x = "Date Subsampled", y = "DOC (ppm)", title = "April 2019 DOC")+
+  ylim(0, 50) +
+  theme_bw(base_size = 10)
+
+ggplot(data = june_2019_doc, aes(x = Date.Sampled, y = DOC.ppm))+
+  geom_point(aes(col=Site), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site))+
+  labs(x = "Date Subsampled", y = "DOC (ppm)", title = "June 2019 DOC")+
+  ylim(0, 50) +
+  theme_bw(base_size = 10)
+
+ggplot(data = sept_2019_doc, aes(x = Date.Sampled, y = DOC.ppm))+
+  geom_point(aes(col=Site), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site))+
+  labs(x = "Date Subsampled", y = "DOC (ppm)", title = "September 2019 DOC")+
+  ylim(0, 50) +
+  theme_bw(base_size = 10)
+
+ggplot(data = oct_2019_doc, aes(x = Date.Sampled, y = DOC.ppm))+
+  geom_point(aes(col=Site), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site))+
+  labs(x = "Date Subsampled", y = "DOC (ppm)", title = "October 2019 DOC")+
+  ylim(0, 50) +
+  theme_bw(base_size = 10)
+
+ggplot(data = dec_2019_doc, aes(x = Date.Sampled, y = DOC.ppm))+
+  geom_point(aes(col=Site), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site))+
+  labs(x = "Date Subsampled", y = "DOC (ppm)", title = "December 2019 - January 2020 DOC")+
+  ylim(0, 50) +
+  theme_bw(base_size = 10) 
+
+ggplot(data = feb_2020_doc, aes(x = Date.Sampled, y = DOC.ppm))+
+  geom_point(aes(col=Site), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site))+
+  labs(x = "Date Subsampled", y = "DOC (ppm)", title = "February 2020 DOC")+
+  ylim(0, 50) +
+  theme_bw(base_size = 10)
+
+ggplot(data = march_2020_doc, aes(x = Date.Sampled, y = DOC.ppm))+
+  geom_point(aes(col=Site), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site))+
+  labs(x = "Date Subsampled", y = "DOC (ppm)", title = "March 2020 DOC")+
+  ylim(0, 50) +
+  theme_bw(base_size = 10)
+
+ggplot(data = june_2020_doc, aes(x = Date.Sampled, y = DOC.ppm))+
+  geom_point(aes(col=Site), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site))+
+  labs(x = "Date Subsampled", y = "DOC (ppm)", title = "June 2020 DOC")+
+  ylim(0, 50) +
+  theme_bw(base_size = 10)
+
+ggplot(data = oct_2020_doc, aes(x = Date.Sampled, y = DOC.ppm))+
+  geom_point(aes(col=Site), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site))+
+  labs(x = "Date Subsampled", y = "DOC (ppm)", title = "October 2020 DOC")+
+  ylim(0, 50) +
+  theme_bw(base_size = 10)
+
+
+
+# Graphing DOC using Cowplot ----------------------------------------------
+
+DOC_1_graph <- ggplot(data = jan_2019_doc, aes(x = Date.Sampled, y = DOC.ppm))+
+  geom_point(aes(col=Site), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site))+
+  scale_color_manual( breaks = c("BABYMARSH", "COS-BEACH", "COS-TRI", "KNAGGS", "MOK-US-RR", "XSSAC"),
+                     values = c("#D55E00", "#009E73", "#0072B2", "#CC79A7", "#56B4E9", "#E69F00"))+
+  labs(title = "January-March 2019 DOC")+
+  ylim(0, 50) + 
+  theme_bw(base_size = 6) +
+  theme(axis.title.x = element_blank(), axis.title.y = element_blank())
+  
+
+DOC_2_graph <- ggplot(data = april_2019_doc, aes(x = Date.Sampled, y = DOC.ppm))+
+  geom_point(aes(col=Site), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site))+
+  scale_color_manual( breaks = c("BABYMARSH", "COS-BEACH", "COS-TRI", "KNAGGS", "MOK-US-RR", "XSSAC"),
+                      values = c("#D55E00", "#009E73", "#0072B2", "#CC79A7", "#56B4E9", "#E69F00"))+
+  labs(title = "April 2019 DOC")+
+  ylim(0, 50)+
+  theme_bw(base_size = 6)+
+  theme(axis.title.x = element_blank(), axis.title.y = element_blank())
+
+DOC_3_graph <- ggplot(data = june_2019_doc, aes(x = Date.Sampled, y = DOC.ppm))+
+  geom_point(aes(col=Site), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site))+
+  scale_color_manual( breaks = c("BABYMARSH", "COS-BEACH", "COS-TRI", "KNAGGS", "MOK-US-RR", "XSSAC"),
+                      values = c("#D55E00", "#009E73", "#0072B2", "#CC79A7", "#56B4E9", "#E69F00"))+
+  labs(title = "June 2019 DOC")+
+  ylim(0, 50) +
+  theme_bw(base_size = 6)+
+  theme(axis.title.x = element_blank(), axis.title.y = element_blank())
+
+DOC_4_graph <- ggplot(data = sept_2019_doc, aes(x = Date.Sampled, y = DOC.ppm))+
+  geom_point(aes(col=Site), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site))+
+  scale_color_manual( breaks = c("BABYMARSH", "COS-BEACH", "COS-TRI", "KNAGGS", "MOK-US-RR", "XSSAC"),
+                      values = c("#D55E00", "#009E73", "#0072B2", "#CC79A7", "#56B4E9", "#E69F00"))+
+  labs(title = "September 2019 DOC")+
+  ylim(0, 50) +
+  theme_bw(base_size = 6)+
+  theme(axis.title.x = element_blank(), axis.title.y = element_blank())
+
+DOC_5_graph <- ggplot(data = oct_2019_doc, aes(x = Date.Sampled, y = DOC.ppm))+
+  geom_point(aes(col=Site), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site))+
+  scale_color_manual( breaks = c("BABYMARSH", "COS-BEACH", "COS-TRI", "KNAGGS", "MOK-US-RR", "XSSAC"),
+                      values = c("#D55E00", "#009E73", "#0072B2", "#CC79A7", "#56B4E9", "#E69F00"))+
+  labs(title = "October 2019 DOC")+
+  ylim(0, 50) +
+  theme_bw(base_size = 6)+
+  theme(axis.title.x = element_blank(), axis.title.y = element_blank())
+
+DOC_6_graph <- ggplot(data = dec_2019_doc, aes(x = Date.Sampled, y = DOC.ppm))+
+  geom_point(aes(col=Site), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site))+
+  labs(title = "December 2019 - January 2020 DOC")+
+  scale_color_manual( breaks = c("BABYMARSH", "COS-BEACH", "COS-TRI", "KNAGGS", "MOK-US-RR", "XSSAC"),
+                      values = c("#D55E00", "#009E73", "#0072B2", "#CC79A7", "#56B4E9", "#E69F00"))+
+  ylim(0, 50) +
+  theme_bw(base_size = 6)+
+  theme(axis.title.x = element_blank(), axis.title.y = element_blank())
+
+DOC_7_graph <- ggplot(data = feb_2020_doc, aes(x = Date.Sampled, y = DOC.ppm))+
+  geom_point(aes(col=Site), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site))+
+  scale_color_manual( breaks = c("BABYMARSH", "COS-BEACH", "COS-TRI", "KNAGGS", "MOK-US-RR", "XSSAC"),
+                      values = c("#D55E00", "#009E73", "#0072B2", "#CC79A7", "#56B4E9", "#E69F00"))+
+  labs(title = "February 2020 DOC")+
+  ylim(0, 50) +
+  theme_bw(base_size = 6)+
+  theme(axis.title.x = element_blank(), axis.title.y = element_blank())
+
+DOC_8_graph <- ggplot(data = march_2020_doc, aes(x = Date.Sampled, y = DOC.ppm))+
+  geom_point(aes(col=Site), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site))+
+  scale_color_manual( breaks = c("BABYMARSH", "COS-BEACH", "COS-TRI", "KNAGGS", "MOK-US-RR", "XSSAC"),
+                      values = c("#D55E00", "#009E73", "#0072B2", "#CC79A7", "#56B4E9", "#E69F00"))+
+  labs(title = "March 2020 DOC")+ 
+  ylim(0, 50) +
+  theme_bw(base_size = 6)+
+  theme(axis.title.x = element_blank(), axis.title.y = element_blank())
+
+DOC_9_graph <- ggplot(data = june_2020_doc, aes(x = Date.Sampled, y = DOC.ppm))+
+  geom_point(aes(col=Site), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site))+
+  scale_color_manual( breaks = c("BABYMARSH", "COS-BEACH", "COS-TRI", "KNAGGS", "MOK-US-RR", "XSSAC"),
+                      values = c("#D55E00", "#009E73", "#0072B2", "#CC79A7", "#56B4E9", "#E69F00"))+
+  labs(title = "June 2020 DOC")+
+  ylim(0, 50) +
+  theme_bw(base_size = 6)+
+  theme(axis.title.x = element_blank(), axis.title.y = element_blank())
+
+DOC_10_graph <- ggplot(data = oct_2020_doc, aes(x = Date.Sampled, y = DOC.ppm))+
+  geom_point(aes(col=Site), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site))+
+  scale_color_manual( breaks = c("BABYMARSH", "COS-BEACH", "COS-TRI", "KNAGGS", "MOK-US-RR", "XSSAC"),
+                      values = c("#D55E00", "#009E73", "#0072B2", "#CC79A7", "#56B4E9", "#E69F00"))+
+  labs(title = "October 2020 DOC")+
+  ylim(0, 50)+
+  theme_bw(base_size = 6)+
+  theme(axis.title.x = element_blank(), axis.title.y = element_blank())
+
+
+DOC_legend <- get_legend (DOC_1_graph)
+
+  
+DOC_GRAPH <- plot_grid(DOC_1_graph + theme(legend.position = "none"), 
+          DOC_2_graph + theme(legend.position = "none"), 
+          DOC_4_graph + theme(legend.position = "none"), 
+          DOC_5_graph + theme(legend.position = "none"), 
+          DOC_6_graph + theme(legend.position = "none"), 
+          DOC_7_graph + theme(legend.position = "none"), 
+          DOC_8_graph + theme(legend.position = "none"), 
+          DOC_9_graph + theme(legend.position = "none"), 
+          DOC_10_graph + theme(legend.position = "none"),
+          ncol = 3, nrow = 3)
+
+DOC_Legend_Graph <- plot_grid(DOC_GRAPH, DOC_legend, rel_widths = c(3, 0.3))
+
 
 # SUVA  -------------------------------------------------------------------
 
@@ -722,10 +964,8 @@ suva_data <- doc_data %>%
 
 
 jan_2019_suva <- suva_data %>%
-  filter(Date.Collected >= "2019-01-04", Date.Collected <= "2019-03-01")
+  filter(Date.Collected >= "2019-01-04", Date.Collected <= "2019-03-31")
 
-march_2019_suva <- suva_data %>%
-  filter(Date.Collected >= "2019-03-01", Date.Collected <= "2019-03-31")
 #2019-04-08 SAC-XS DOC
 #2019-04-09 BABYMARSH DOC
 #2019-04-10 COS-TRI, WENNDELS, KNAGGS_F6 DOC
@@ -759,6 +999,7 @@ oct_2019_suva <- suva_data %>%
 
 dec_2019_suva <- suva_data %>% 
   filter(Date.Collected >= "2019-12-09", Date.Collected <= "2020-01-08")
+
 
 #2020-02-10 MOK-US-RR, COS-BEACH, KNAGGS DOC
 #2020-02-11 Baby Marsh DOC
@@ -855,6 +1096,190 @@ ggplot(data = oct_2020_suva, aes(x = Date.Sampled, y = SUVA.254))+
   geom_line(aes(group=Site_Rep, col=Site_Rep))+
   labs(x = "Date Subsampled", y = "SUVA at Absorption 254", title = "October 2020 SUVA")+
   theme_bw(base_size = 10)
+
+# Graphing SUVA site color consistent ----------------------------------
+
+ggplot(data = jan_2019_suva, aes(x = Date.Sampled, y = SUVA.254))+
+  geom_point(aes(col=Site), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site))+
+  labs(x = "Date Subsampled", y = "SUVA at Absorption 254", title = "January-March 2019 SUVA")+
+  ylim(0, 8)+
+  theme_bw(base_size = 10)
+
+ggplot(data = april_2019_suva, aes(x = Date.Sampled, y = SUVA.254))+
+  geom_point(aes(col=Site), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site))+
+  labs(x = "Date Subsampled", y = "SUVA at Absorption 254", title = "April 2019 SUVA")+
+  ylim(0, 8)+
+  theme_bw(base_size = 10)
+
+
+ggplot(data = sept_2019_suva, aes(x = Date.Sampled, y = SUVA.254))+
+  geom_point(aes(col=Site), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site))+
+  labs(x = "Date Subsampled", y = "SUVA at Absorption 254", title = "September 2019 SUVA")+
+  ylim(0, 8)+
+  theme_bw(base_size = 10)
+
+ggplot(data = oct_2019_suva, aes(x = Date.Sampled, y = SUVA.254))+
+  geom_point(aes(col=Site), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site))+
+  labs(x = "Date Subsampled", y = "SUVA at Absorption 254", title = "October 2019 SUVA")+
+  ylim(0, 8)+
+  theme_bw(base_size = 10)
+
+ggplot(data = dec_2019_suva, aes(x = Date.Sampled, y = SUVA.254))+
+  geom_point(aes(col=Site), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site))+
+  labs(x = "Date Subsampled", y = "SUVA at Absorption 254", title = "December 2019 - January 2020 SUVA")+
+  ylim(0, 8)+
+  theme_bw(base_size = 10) 
+
+ggplot(data = feb_2020_suva, aes(x = Date.Sampled, y = SUVA.254))+
+  geom_point(aes(col=Site), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site))+
+  labs(x = "Date Subsampled", y = "SUVA at Absorption 254", title = "February 2020 SUVA")+
+  ylim(0, 8)+
+  theme_bw(base_size = 10)
+
+ggplot(data = march_2020_suva, aes(x = Date.Sampled, y = SUVA.254))+
+  geom_point(aes(col=Site), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site))+
+  labs(x = "Date Subsampled", y = "SUVA at Absorption 254", title = "March 2020 SUVA")+
+  ylim(0, 8)+
+  theme_bw(base_size = 10)
+
+ggplot(data = june_2020_suva, aes(x = Date.Sampled, y = SUVA.254))+
+  geom_point(aes(col=Site), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site))+
+  labs(x = "Date Subsampled", y = "SUVA at Absorption 254", title = "June 2020 SUVA")+
+  ylim(0, 8)+
+  theme_bw(base_size = 10)
+
+ggplot(data = oct_2020_suva, aes(x = Date.Sampled, y = SUVA.254))+
+  geom_point(aes(col=Site), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site))+
+  labs(x = "Date Subsampled", y = "SUVA at Absorption 254", title = "October 2020 SUVA")+
+  ylim(0, 8)+
+  theme_bw(base_size = 10)
+
+
+# Graphing SUVA with cowplot ----------------------------------------------
+
+SUVA_1_graph <- ggplot(data = jan_2019_suva, aes(x = Date.Sampled, y = SUVA.254))+
+  geom_point(aes(col=Site), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site))+
+  scale_color_manual( breaks = c("BABYMARSH", "COS-BEACH", "COS-TRI", "KNAGGS", "MOK-US-RR", "XSSAC"),
+                     values = c("#D55E00", "#009E73", "#0072B2", "#CC79A7", "#56B4E9", "#E69F00"))+
+  labs(title = "January-March 2019 SUVA")+
+  ylim(0, 8) +
+  theme_bw(base_size = 6)+
+  theme(axis.title.x = element_blank(), axis.title.y = element_blank())
+
+SUVA_2_graph <- ggplot(data = april_2019_suva, aes(x = Date.Sampled, y = SUVA.254))+
+  geom_point(aes(col=Site), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site))+
+  scale_color_manual( breaks = c("BABYMARSH", "COS-BEACH", "COS-TRI", "KNAGGS", "MOK-US-RR", "XSSAC"),
+                      values = c("#D55E00", "#009E73", "#0072B2", "#CC79A7", "#56B4E9", "#E69F00"))+
+  labs(title = "April 2019 SUVA")+
+  ylim(0, 8) +
+  theme_bw(base_size = 6)+
+  theme(axis.title.x = element_blank(), axis.title.y = element_blank())
+
+SUVA_3_graph <- ggplot(data = june_2019_suva, aes(x = Date.Sampled, y = SUVA.254))+
+  geom_point(aes(col=Site), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site))+
+  scale_color_manual( breaks = c("BABYMARSH", "COS-BEACH", "COS-TRI", "KNAGGS", "MOK-US-RR", "XSSAC"),
+                      values = c("#D55E00", "#009E73", "#0072B2", "#CC79A7", "#56B4E9", "#E69F00"))+
+  labs(title = "June 2019 SUVA")+
+  ylim(0, 8) +
+  theme_bw(base_size = 6)+
+  theme(axis.title.x = element_blank(), axis.title.y = element_blank())
+
+SUVA_4_graph <- ggplot(data = sept_2019_suva, aes(x = Date.Sampled, y = SUVA.254))+
+  geom_point(aes(col=Site), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site))+
+  scale_color_manual( breaks = c("BABYMARSH", "COS-BEACH", "COS-TRI", "KNAGGS", "MOK-US-RR", "XSSAC"),
+                      values = c("#D55E00", "#009E73", "#0072B2", "#CC79A7", "#56B4E9", "#E69F00"))+
+  labs(title = "September 2019 SUVA")+
+  ylim(0, 8) +
+  theme_bw(base_size = 6)+
+  theme(axis.title.x = element_blank(), axis.title.y = element_blank())
+
+SUVA_5_graph <- ggplot(data = oct_2019_suva, aes(x = Date.Sampled, y = SUVA.254))+
+  geom_point(aes(col=Site), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site))+
+  scale_color_manual( breaks = c("BABYMARSH", "COS-BEACH", "COS-TRI", "KNAGGS", "MOK-US-RR", "XSSAC"),
+                      values = c("#D55E00", "#009E73", "#0072B2", "#CC79A7", "#56B4E9", "#E69F00"))+
+  labs(title = "October 2019 SUVA")+
+  ylim(0, 8) +
+  theme_bw(base_size = 6)+
+  theme(axis.title.x = element_blank(), axis.title.y = element_blank())
+
+SUVA_6_graph <- ggplot(data = dec_2019_suva, aes(x = Date.Sampled, y = SUVA.254))+
+  geom_point(aes(col=Site), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site))+
+  scale_color_manual( breaks = c("BABYMARSH", "COS-BEACH", "COS-TRI", "KNAGGS", "MOK-US-RR", "XSSAC"),
+                      values = c("#D55E00", "#009E73", "#0072B2", "#CC79A7", "#56B4E9", "#E69F00"))+
+  labs(title = "December 2019 - January 2020 SUVA")+
+  ylim(0, 8) +
+  theme_bw(base_size = 6)+
+  theme(axis.title.x = element_blank(), axis.title.y = element_blank())
+
+SUVA_7_graph <- ggplot(data = feb_2020_suva, aes(x = Date.Sampled, y = SUVA.254))+
+  geom_point(aes(col=Site), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site))+
+  scale_color_manual( breaks = c("BABYMARSH", "COS-BEACH", "COS-TRI", "KNAGGS", "MOK-US-RR", "XSSAC"),
+                      values = c("#D55E00", "#009E73", "#0072B2", "#CC79A7", "#56B4E9", "#E69F00"))+
+  labs(title = "February 2020 SUVA")+
+  ylim(0, 8) +
+  theme_bw(base_size = 6)+
+  theme(axis.title.x = element_blank(), axis.title.y = element_blank())
+
+SUVA_8_graph <- ggplot(data = march_2020_suva, aes(x = Date.Sampled, y = SUVA.254))+
+  geom_point(aes(col=Site), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site))+
+  scale_color_manual( breaks = c("BABYMARSH", "COS-BEACH", "COS-TRI", "KNAGGS", "MOK-US-RR", "XSSAC"),
+                      values = c("#D55E00", "#009E73", "#0072B2", "#CC79A7", "#56B4E9", "#E69F00"))+
+  labs(title = "March 2020 SUVA")+ 
+  ylim(0, 8) +
+  theme_bw(base_size = 6)+
+  theme(axis.title.x = element_blank(), axis.title.y = element_blank())
+
+SUVA_9_graph <- ggplot(data = june_2020_suva, aes(x = Date.Sampled, y = SUVA.254))+
+  geom_point(aes(col=Site), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site))+
+  scale_color_manual( breaks = c("BABYMARSH", "COS-BEACH", "COS-TRI", "KNAGGS", "MOK-US-RR", "XSSAC"),
+                      values = c("#D55E00", "#009E73", "#0072B2", "#CC79A7", "#56B4E9", "#E69F00"))+
+  labs(title = "June 2020 SUVA")+
+  ylim(0, 8) +
+  theme_bw(base_size = 6)+
+  theme(axis.title.x = element_blank(), axis.title.y = element_blank())
+
+SUVA_10_graph <- ggplot(data = oct_2020_suva, aes(x = Date.Sampled, y = SUVA.254))+
+  geom_point(aes(col=Site), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site))+
+  scale_color_manual( breaks = c("BABYMARSH", "COS-BEACH", "COS-TRI", "KNAGGS", "MOK-US-RR", "XSSAC"),
+                      values = c("#D55E00", "#009E73", "#0072B2", "#CC79A7", "#56B4E9", "#E69F00"))+
+  labs(title = "October 2020 SUVA")+
+  ylim(0, 8) +
+  theme_bw(base_size = 6)+
+  theme(axis.title.x = element_blank(), axis.title.y = element_blank())
+
+SUVA_Legend <- get_legend(SUVA_1_graph)
+
+SUVA_Graph <- plot_grid(SUVA_1_graph + theme(legend.position = "none"), 
+          SUVA_2_graph + theme(legend.position = "none"), 
+          SUVA_4_graph + theme(legend.position = "none"), 
+          SUVA_5_graph + theme(legend.position = "none"), 
+          SUVA_6_graph + theme(legend.position = "none"), 
+          SUVA_7_graph + theme(legend.position = "none"), 
+          SUVA_8_graph + theme(legend.position = "none"), 
+          SUVA_9_graph + theme(legend.position = "none"), 
+          SUVA_10_graph + theme(legend.position = "none"),
+          ncol = 3, nrow = 3)
+
+SUVA_Legend_Graph <- plot_grid(SUVA_Graph, SUVA_Legend, rel_widths = c(3, 0.3))
 
 # Something that showed up randomly ---------------------------------------
 

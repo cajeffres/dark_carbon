@@ -13,27 +13,27 @@ library(vegan)
 library(ggplot2)
 library(scales)
 
-#zoop data collected and updated september 2020 
-zoop.dc<-read.csv("2020_11_2_DC_Zoop_MRL.csv")
+#update July 2021 
+zoop.dc2<-read.csv("darkcarbon_zoop_all.csv")
 
 #format date into 
-zoop.dc$Date<-as.Date(zoop.dc$Date,format="%m/%d/%y")
+zoop.dc2$Date<-as.Date(zoop.dc2$Date,format="%m/%d/%y")
 
 #check to see how many sites there are and change to have only five 
-unique(zoop.dc$Site)
-
+unique(zoop.dc2$Site)
+unique(zoop.dc2$Group)
 
 #convert flowmeter to numeric instead of character 
-zoop.dc$FlowMeterEnd  <- as.numeric(as.character(zoop.dc$FlowMeterEnd))
-zoop.dc$FlowMeterBegin  <- as.numeric(as.character(zoop.dc$FlowMeterBegin))
-zoop.dc$TotalVolume_ml  <- as.numeric(as.character(zoop.dc$TotalVolume_ml))
-zoop.dc$Volumesubsampled_ml  <- as.numeric(as.character(zoop.dc$Volumesubsampled_ml))
-zoop.dc$RingSize_cm  <- as.numeric(as.character(zoop.dc$RingSize_cm))
-zoop.dc$abundance  <- as.numeric(as.character(zoop.dc$abundance))
-zoop.dc$SplitFraction <- as.numeric(as.character(zoop.dc$SplitFraction))
-zoop.dc$MeshSize_Microns <- as.numeric(as.character(zoop.dc$MeshSize_Microns))
+zoop.dc2$FlowMeterEnd  <- as.numeric(as.character(zoop.dc2$FlowMeterEnd))
+zoop.dc2$FlowMeterBegin  <- as.numeric(as.character(zoop.dc2$FlowMeterBegin))
+zoop.dc2$TotalVolume_ml  <- as.numeric(as.character(zoop.dc2$TotalVolume_ml))
+zoop.dc2$Volumesubsampled_ml  <- as.numeric(as.character(zoop.dc2$Volumesubsampled_ml))
+zoop.dc2$RingSize_cm  <- as.numeric(as.character(zoop.dc2$RingSize_cm))
+zoop.dc2$abundance  <- as.numeric(as.character(zoop.dc2$abundance))
+zoop.dc2$SplitFraction <- as.numeric(as.character(zoop.dc2$SplitFraction))
+zoop.dc2$MeshSize_Microns <- as.numeric(as.character(zoop.dc2$MeshSize_Microns))
 
-na.omit(zoop.dc)
+na.omit(zoop.dc2)
 
 #abundance function 
 abundance<-function(df) {
@@ -47,116 +47,288 @@ abundance<-function(df) {
 }
 
 #use abundance function
-drkcbnabundance<-abundance(zoop.dc)
+drkcbnabundance2 <-abundance(zoop.dc2)
 
 #Group by site, date, and order 
-drkcbnzoop.sum<-drkcbnabundance %>% 
-  group_by(Site, Date, Order) %>% 
+drkcbnzoop.sum2 <-drkcbnabundance2 %>% 
+  group_by(Site, Date, Order, Subclass, Group, Species, LifeStage) %>% 
   summarise(Total=sum(ind_m3)) 
 
-na.omit(drkcbnzoop.sum)
 
-#color blind pallete colors 
-cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+#format date into 
+drkcbnzoop.sum2$Date<-as.Date(drkcbnzoop.sum2$Date,format="%m/%d/%y")
 
-#delete O and #N/A in Order column
-drkcbnzoop.sum2<-drkcbnzoop.sum[!(drkcbnzoop.sum$Order=="0" | drkcbnzoop.sum$Order=="#N/A"),]
+#check sites 
+unique(drkcbnzoop.sum2$Site)
 
-#Graph to see what it looks like right now for abundance 
-ggplot(drkcbnzoop.sum2, aes(x = Date, y = Total, fill=Order)) +
-  geom_area() +
+#do only january 2019 end of december 2020 
+drkcbnzoop.sum3 <- drkcbnzoop.sum2 %>%
+  select(Site, Date, Order, Subclass, Total, Group, Species, LifeStage) %>% 
+  filter(Date >= as.Date("2019/01/01") & Date <= as.Date("2020/12/31"))
+
+#plot of  both years
+ggplot(drkcbnzoop.sum3, aes(x=Date, y=Total, color=Group, fill=Group)) +
+  geom_bar(stat="identity") +
   ggtitle("Yearly Abundance") +
+  facet_grid(Site~.) +
   scale_x_date(date_labels = "%b-%y", breaks= "6 months") +
   scale_y_continuous(label=comma) +
-  theme_classic()
+  theme_bw()
 
-#filter out individual sites and analyze abundance over time
-mok<-drkcbnzoop.sum2%>% 
-  filter(Site == "MOK-US-RR")
+#subset 2019
+zoop19<- drkcbnzoop.sum3 %>%
+  select(Site, Date, Order, Subclass, Total, Group, Species, LifeStage) %>%
+  filter(Date >= as.Date("2019/01/01") & Date <= as.Date("2019/12/31"))
 
-sac<-drkcbnzoop.sum2%>% 
-  filter(Site == "SAC-FREMONT")
+#subset 2020
+zoop20<- drkcbnzoop.sum3 %>%
+  select(Site, Date, Order, Subclass, Total, Group, Species, LifeStage) %>%
+  filter(Date >= as.Date("2020/01/01") & Date <= as.Date("2020/12/31"))
 
-cb<-drkcbnzoop.sum2%>% 
-  filter(Site == "COS-BEACH")
+#graph for 2019 
 
-kngf6<-drkcbnzoop.sum2%>% 
-  filter(Site == "KNAGGS-F6")
-
-#knaggs has throws and needs to be multiplied by something to not have NAs
-
-kngf3<-drkcbnzoop.sum2%>% 
-  filter(Site == "KNAGGS-F3")
-
-bm <-drkcbnzoop.sum2%>% 
-  filter(Site == "BABYMARSH")
-
-#graph abundance over time by site- Baby Marsh
-ggplot(data = bm, aes(x = Date, y = Total, fill = Order)) + 
-  geom_bar(stat = "identity") +
-  ggtitle("Baby Marsh Abundance") +
-  scale_x_date(date_labels = "%b-%y", breaks= "6 months") +
-  labs(x= "Date", y= "Total Abundance (ind/m3)") +
+ggplot(zoop19, aes(x=Date, y=Total, color=Group, fill=Group)) +
+  geom_bar(stat="identity") +
+  ggtitle("Yearly Abundance 2019") +
+  facet_grid(Site~.) +
+  scale_x_date(date_labels = "%b-%y", breaks= "3 months") +
   scale_y_continuous(label=comma) +
-  theme_classic()
+  theme_bw()
 
-#export graph 
-png("BM Abundance.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+#graph for 2020 
 
-ggplot(data = bmgroup, aes(x = Date, y = Total, fill = Order)) + 
-  geom_bar(stat = "identity") +
-  ggtitle("Baby Marsh Abundance") +
-  scale_x_date(date_labels = "%b-%y", breaks= "6 months") +
-  labs(x= "Date", y= "Total Abundance (ind/m3)") +
+ggplot(zoop20, aes(x=Date, y=Total, color=Group, fill=Group)) +
+  geom_bar(stat="identity") +
+  ggtitle("Yearly Abundance 2020") +
+  facet_grid(Site~.) +
+  scale_x_date(date_labels = "%b-%y", breaks= "3 months") +
   scale_y_continuous(label=comma) +
-  theme_classic()
+  theme_bw()
+
+#Export all the graph and ask for feedback 
+#export 2019 + 2020 
+png("Abundance_both.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(drkcbnzoop.sum3, aes(x=Date, y=Total, color=Group, fill=Group)) +
+  geom_bar(stat="identity") +
+  ggtitle("Yearly Abundance") +
+  facet_grid(Site~.) +
+  scale_x_date(date_labels = "%b-%y", breaks= "6 months") +
+  scale_y_continuous(label=comma) +
+  theme_bw()
 
 dev.off()
 
-#graph abundance over time by site- MokUSRR
-ggplot(data = mok, aes(x = Date, y = Total, fill = Order)) + 
-  geom_bar(stat = "identity") +
-  ggtitle("MOK-USRR Abundance") +
-  scale_x_date(date_labels = "%b-%y", breaks= "6 months") +
-  labs(x= "Date", y= "Total Abundance (ind/m3)") +
+#export 2019 
+png("Abundance_19.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(zoop19, aes(x=Date, y=Total, color=Group, fill=Group)) +
+  geom_bar(stat="identity") +
+  ggtitle("Yearly Abundance 2019") +
+  facet_grid(Site~.) +
+  scale_x_date(date_labels = "%b-%y", breaks= "3 months") +
   scale_y_continuous(label=comma) +
-  theme_classic()
+  theme_bw()
 
-#graph abundance over time by site- CosBeach
-ggplot(data = cb, aes(x = Date, y = Total, fill = Order)) + 
-  geom_bar(stat = "identity") +
-  ggtitle("Cos Beach Abundance") +
-  scale_x_date(date_labels = "%b-%y", breaks= "6 months") +
-  labs(x= "Date", y= "Total Abundance (ind/m3)") +
+dev.off()
+
+#export 2020
+png("Abundance_20.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(zoop20, aes(x=Date, y=Total, color=Group, fill=Group)) +
+  geom_bar(stat="identity") +
+  ggtitle("Yearly Abundance 2020") +
+  facet_grid(Site~.) +
+  scale_x_date(date_labels = "%b-%y", breaks= "3 months") +
   scale_y_continuous(label=comma) +
-  theme_classic()
+  theme_bw()
 
-#graph abundance over time by site- KnaggsF6
-ggplot(data = kngf6, aes(x = Date, y = Total, fill = Order)) + 
-  geom_bar(stat = "identity") +
-  ggtitle("Knaggs-F6 Abundance") +
-  scale_x_date(date_labels = "%b-%y", breaks= "6 months") +
-  labs(x= "Date", y= "Total Abundance (ind/m3)") +
+dev.off()
+
+#coming back to break cage dates down for 2019 and 2020
+#subset 2019 field dates aka wet periods
+
+zoop19s<- drkcbnzoop.sum3 %>%
+  select(Site, Date, Order, Subclass, Total, Group, Species, LifeStage) %>%
+  filter(Date >= as.Date("2019/01/01") & Date <= as.Date("2019/04/30"))
+
+#subset 2020 field dates 
+zoop20s<- drkcbnzoop.sum3 %>%
+  select(Site, Date, Order, Subclass, Total, Group, Species, LifeStage) %>%
+  filter(Date >= as.Date("2020/01/01") & Date <= as.Date("2020/04/30"))
+
+#graph for 2019 wet dates
+
+ggplot(zoop19s, aes(x=Date, y=Total, color=Group, fill=Group)) +
+  geom_bar(stat="identity") +
+  ggtitle("Abundance 2019") +
+  facet_grid(Site~.) +
+  scale_x_date(date_labels = "%b-%y", breaks= "1 month") +
   scale_y_continuous(label=comma) +
-  theme_classic()
+  theme_bw()
 
-#graph abundance over time by site- KnaggsF3
-ggplot(data = kngf3, aes(x = Date, y = Total, fill = Order)) + 
-  geom_bar(stat = "identity") +
-  ggtitle("Knaggs-F3 Abundance") +
-  scale_x_date(date_labels = "%b-%y", breaks= "6 months") +
-  labs(x= "Date", y= "Total Abundance (ind/m3)") +
+#graph for 2020 
+
+ggplot(zoop20s, aes(x=Date, y=Total, color=Group, fill=Group)) +
+  geom_bar(stat="identity") +
+  ggtitle("Abundance 2020") +
+  facet_grid(Site~.) +
+  scale_x_date(date_labels = "%b-%y", breaks= "1 month") +
   scale_y_continuous(label=comma) +
-  theme_classic()
+  theme_bw()
 
-#graph abundance over time by site- Sac-Fremont
-ggplot(data = sac, aes(x = Date, y = Total, fill = Order)) + 
-  geom_bar(stat = "identity") +
-  ggtitle("Sac-Fremont Abundance") +
-  scale_x_date(date_labels = "%b-%y", breaks= "6 months") +
-  labs(x= "Date", y= "Total Abundance (ind/m3)") +
+#Export all the graph and ask for feedback 
+
+#export 2019 wet period
+png("Abundance_Jan_April_19.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(zoop19s, aes(x=Date, y=Total, color=Group, fill=Group)) +
+  geom_bar(stat="identity") +
+  ggtitle("Abundance 2019") +
+  facet_grid(Site~.) +
+  scale_x_date(date_labels = "%b-%y", breaks= "1 month") +
   scale_y_continuous(label=comma) +
-  theme_classic()
+  theme_bw()
 
-#Group together large and small cladocera for in depth comparision  
+dev.off()
 
+#export 2020 wet period
+png("Abundance_Jan_April_20.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(zoop20s, aes(x=Date, y=Total, color=Group, fill=Group)) +
+  geom_bar(stat="identity") +
+  ggtitle("Abundance 2020") +
+  facet_grid(Site~.) +
+  scale_x_date(date_labels = "%b-%y", breaks= "1 month") +
+  scale_y_continuous(label=comma) +
+  theme_bw()
+
+dev.off()
+
+#logging abundance graphs - July 12th 
+#using ggplot call y= log(abundance)
+
+png("Abundance_Jan_April_20_log.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(zoop20s, aes(x=Date, y=Total, color=Group, fill=Group)) +
+  geom_bar(stat="identity") +
+  ggtitle("Abundance 2020") +
+  facet_grid(Site~.) +
+  scale_x_date(date_labels = "%b-%y", breaks= "1 month") +
+  scale_y_log10() + 
+  theme_bw()
+
+dev.off()
+#another way
+# y= log(abundance) 
+#wet period 2020 
+png("Abundance_Jan_April_20_log3.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(zoop20s, aes(x=Date, y=log(Total), color=Group, fill=Group)) +
+  geom_bar(stat="identity") +
+  ggtitle("Abundance 2020") +
+  facet_grid(Site~.) +
+  scale_x_date(date_labels = "%b-%y", breaks= "1 month") +
+  theme_bw()
+
+dev.off()
+
+#another way
+# y= log(abundance)
+#wet period 2019
+png("Abundance_Jan_April_19_log3.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(zoop19s, aes(x=Date, y=log(Total), color=Group, fill=Group)) +
+  geom_bar(stat="identity") +
+  ggtitle("Abundance 2019") +
+  facet_grid(Site~.) +
+  scale_x_date(date_labels = "%b-%y", breaks= "1 month") +
+  theme_bw()
+
+dev.off()
+
+#redo with log y 
+#export 2020 wet period
+png("Abundance_20_free.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(zoop20s, aes(x=Date, y=Total, color=Group, fill=Group)) +
+  geom_bar(stat="identity") +
+  ggtitle("Abundance 2020") +
+  facet_grid(Site~. , scales = "free") +
+  scale_x_date(date_labels = "%b-%y", breaks= "1 month") +
+  scale_y_continuous(label=comma) +
+  theme_bw()
+
+dev.off()
+
+#logging abundance graphs - July 12th 
+#using ggplot call y= log(abundance)
+
+png("Abundance_Field20.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(zoop20s, aes(x=Date, y=Total, color=Group, fill=Group)) +
+  geom_bar(stat="identity") +
+  ggtitle("Abundance 2020") +
+  facet_grid(Site~.) +
+  scale_x_date(date_labels = "%b-%y", breaks= "1 month") +
+  scale_y_log10() + 
+  theme_bw()
+
+dev.off()
+
+#wet period 2020 
+
+png("Abundance_Jan_April_20_log_new.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(zoop20s, aes(x=Date, y=log(Total), color=Group, fill=Group)) +
+  geom_bar(stat="identity") +
+  ggtitle("Abundance 2020") +
+  scale_y_log10() +
+  scale_x_date(date_labels = "%b-%y", breaks= "1 month") +
+  theme_bw()
+
+dev.off()
+
+#wet period 2019
+png("Abundance_19_free.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(zoop19s, aes(x=Date, y=log(Total), color=Group, fill=Group)) +
+  geom_bar(stat="identity") +
+  ggtitle("Abundance 2019") +
+  facet_grid(Site~. , scales = "free") +
+  scale_y_log10() +
+  scale_x_date(date_labels = "%b-%y", breaks= "1 month") +
+  theme_bw() 
+
+dev.off()
+
+
+# y= log(abundance)
+#use options(scipen=10000) - ryan said will correct scientific notation
+#adding free scale within facetgrid 
+
+#wet period 2019
+png("Abundance_19_free.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(zoop19s, aes(x=Date, y=Total, color=Group, fill=Group)) +
+  geom_bar(stat="identity") +
+  ggtitle("Abundance 2019") +
+  facet_grid(Site~. , scales = "free") +
+  scale_y_log10() +
+  scale_x_date(date_labels = "%b-%y", breaks= "1 month") +
+  theme_bw() 
+
+dev.off()
+
+#wet period 2020
+png("Abundance_2020_free.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(zoop20s, aes(x=Date, y=Total, color=Group, fill=Group)) +
+  geom_bar(stat="identity") +
+  ggtitle("Abundance 2020") +
+  facet_grid(Site~. , scales = "free") +
+  scale_y_log10() +
+  scale_x_date(date_labels = "%b-%y", breaks= "1 month") +
+  theme_bw() 
+
+dev.off()

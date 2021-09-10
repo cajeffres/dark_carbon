@@ -1,7 +1,8 @@
 #use this script for WQ data
 #LABWQ Data done by Marissa 
-
-#load libraries
+#redoing to omit all the other things I've done
+##might need those later
+load libraries
 library(lubridate)
 library(dplyr)
 library(tidyr)
@@ -11,206 +12,1063 @@ library(vegan)
 library(ggplot2)
 library(scales)
 
+rm(list = ls())
+
 #load csv 
-darkcbn.wq <-read_csv("2020-10-01_labwq.csv")
+darkcbn.wq <-read_csv("2020_01_labwq.csv")
 
 #format date into 
 darkcbn.wq$Date<-as.Date(darkcbn.wq$Date,format="%m/%d/%y")
 
-
 #check to see how many sites there are and change to have only five 
 unique(darkcbn.wq$Site)
 
-#make individual date sets per site
-mok<-darkcbn.wq%>% 
-  filter(Site == "MOK-US-RR")
+#graphs
+#new work with WQ 
+#goal get all sites on one graph and distingush by colors
 
-sac<-darkcbn.wq%>% 
-  filter(Site == "XSSAC")
-
-cb<-darkcbn.wq%>% 
-  filter(Site == "COS-BEACH")
-
-kngf6<-darkcbn.wq%>% 
-  filter(Site == "KNAGGS-F6")
-
-kngf3<-darkcbn.wq%>% 
-  filter(Site == "KNAGGS-F3")
-
-bm <-darkcbn.wq%>% 
-  filter(Site == "BABYMARSH")
-
-#make individual graphs for site per parameter 
-
-#mok first
-ggplot(mok, aes(x = Date, y = Sal_PSU))+ 
-  geom_line() + 
-  scale_fill_manual(values=cbPalette) +
-  ggtitle("MokUSRR ") +
-  scale_x_date(date_labels = "%b-%y", breaks= "6 months") +
-  theme_classic()
-
-ggplot(mok, aes(x = Date, y = pH, data=pH))+ 
-  geom_line() + 
-  scale_fill_manual(values=cbPalette) +
-  ggtitle("MokUSRR ") +
-  scale_x_date(date_labels = "%b-%y", breaks= "6 months") +
-  theme_classic()
-
-#export to get feedback from carson 
-#Export graph- Cos
-png("mok_pH.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
-
-ggplot(mok, aes(x = Date, y = pH, data=pH))+ 
-  geom_line() + 
-  scale_fill_manual(values=cbPalette) +
-  ggtitle("MokUSRR ") +
-  scale_x_date(date_labels = "%b-%y", breaks= "6 months") +
-  theme_classic()
-
-dev.off()
-
-#overlay multiple parameters on one graph 
-#think about the connections between certain parameters, like temp & pH etc
-
-#use lab wq data 
-#read file 
-bmwq <- read_csv('bmwqlab.csv')
-
-
-#format date into 
-bmwq$Date<-as.Date(bmwq$Date,format="%m/%d/%y")
-
-#graph a parameter over time 
-ggplot(bmwq, aes(x = Date, y = Chl))+ 
-  geom_line() + 
-  scale_fill_manual(values=cbPalette) +
-  ggtitle("Baby Marsh Chl-a ") +
+#pH
+p <- ggplot(data = darkcbn.wq, aes(x = Date, y = pH), position="dodge")+
+  geom_point(aes(col=Site), size=1)+
+  labs(x = "Date ", y = "pH", title = "pH")+
   scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
-  labs(x= "Date", y= "Chl Conc (ug/L)") +
-  theme_classic()
+  theme_bw(base_size = 10) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-#export graph
-png("bm_chl.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+#export pH graph
+png("pH_point.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
 
-ggplot(bmwq, aes(x = Date, y = Chl))+ 
-  geom_line() + 
-  geom_point() +
-  scale_fill_manual(values=cbPalette) +
-  ggtitle("Baby Marsh Chl-a ") +
+ggplot(data = darkcbn.wq, aes(x = Date, y = pH), position="dodge")+
+  geom_point(aes(col=Site), size=1)+
+  labs(x = "Date ", y = "pH", title = "pH")+
+  ylim(7,8.5) +
   scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
-  labs(x= "Date", y= "Chl Conc (ug/L)") +
-  theme_classic()
+  theme_bw(base_size = 10) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 dev.off()
 
-#bring in all lab wq data
-labwq <-read.csv("labwq.csv")
-
-#check for unique site names
-unique(labwq$Site)
-
-#format date into 
-labwq$Date<-as.Date(labwq$Date,format="%m/%d/%y")
-
-#parce out the indivudal sites
-mokwq<-labwq%>% 
-  filter(Site == "Mok-USRR")
-
-sacwq<-labwq%>% 
-  filter(Site == "XSSAC")
-
-cbwq<-labwq%>% 
-  filter(Site == "Cos Beach")
-
-kngf6wq<-labwq%>% 
-  filter(Site == "Knaggs F-6")
-
-kngf3wq<-labwq%>% 
-  filter(Site == "Knaggs-F3")
-
-bmwq <-labwq%>% 
-  filter(Site == "Baby Marsh")
-
-#making a graph before facet graph
-ggplot(bmwq, aes(x=Date, y=Chl))+
-  geom_bar(stat='identity', fill="forest green")+
-  ylab("Chl-a (ug/L)") +
+#chl
+ggplot(data = darkcbn.wq, aes(x = Date, y = Chl), position="dodge") +
+  geom_point(aes(col=Site), size=1)+ 
+  ylim(0,12.5) +
+  labs(x = "Date ", y = "Chlorophyll", title = "Chlorphyll")+
   scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
-  theme_classic()
+  theme_bw(base_size = 10) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-#learn how to use facet wrap 
-bmwqlong <- gather(bmwq, key="measure", value="value", c("Chl", "DOC.ppm", "TN.ppm", "TP.ppm"))
+#export CHL 
+png("chl_point.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
 
-#facet wrap attempt 1 Baby Marsh 
-ggplot(bmwqlong, aes(x=Date, y=value))+
-  geom_bar(stat='identity', fill="forest green")+
-  facet_wrap(~measure,  ncol=2) 
+ggplot(data = darkcbn.wq, aes(x = Date, y = Chl), position="dodge") +
+  geom_point(aes(col=Site), size=1)+ 
+  ylim(0,12.5) +
+  labs(x = "Date ", y = "Chlorophyll", title = "Chlorphyll")+
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  theme_bw(base_size = 10) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-#Mok facet wrap 
-mokwqlong <- gather(mokwq, key="measure", value="value", c("Chl", "DOC.ppm", "TN.ppm", "TP.ppm"))
-
-#facet wrap attempt 2 mok
-ggplot(mokwqlong, aes(x=Date, y=value))+
-  geom_bar(stat='identity', fill="forest green")+
-  facet_wrap(~measure,  ncol=2) 
-
-#export bm facet graph
-png("bm_facet.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
-
-ggplot(bmwqlong, aes(x=Date, y=value))+
-  geom_bar(stat='identity', fill="forest green")+
-  facet_wrap(~measure,  ncol=2) 
 
 dev.off()
 
-#export mok 
-png("mok_facet.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+#EC
+ggplot(data = darkcbn.wq, aes(x = Date, y = EC)) +
+  geom_point(aes(col=Site), size=1)+ 
+  labs(x = "Date ", y = "Electrical Conductivity (µs/cm)", title = "Electrical Conductivity")+
+  ylim(0,1000) +
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  theme_bw(base_size = 10) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-ggplot(mokwqlong, aes(x=Date, y=value))+
-  geom_bar(stat='identity', fill="forest green")+
-  facet_wrap(~measure,  ncol=2) 
+#export EC
+png("EC_point.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
 
-dev.off()
-
-#New script
-#putting all sites on the same grid 
-#trying to facet grid one parameter(pH) for all sites
-p <- ggplot(darkcbn.wq, aes(Date, pH)) + geom_point()
-
-p + facet_grid(cols = vars(Site)) + 
-  scale_x_date(date_labels = "%b-%y", breaks= "6 months") + 
-  coord_cartesian(ylim = c(2, 17))
-
-#export to show and get feedback
-#how should I compare with Knaggs vs other sites
-#how clear can I make it 
-
-png("pH_facet.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
-
-p + facet_grid(cols = vars(Site)) + 
-  scale_x_date(date_labels = "%b-%y", breaks= "6 months") + 
-  coord_cartesian(ylim = c(2, 17))
+ggplot(data = darkcbn.wq, aes(x = Date, y = EC)) +
+  geom_point(aes(col=Site), size=1)+ 
+  labs(x = "Date ", y = "Electrical Conductivity (µs/cm)", title = "Electrical Conductivity") +
+  ylim(0,1000) +
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  theme_bw(base_size = 10) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 dev.off()
 
-#need to combine Knaggs together and maybe omit wendels?
-#so take out BM, CB, Knaggs, Mok, XSSAC 
-#might need to do knaggs seperately then wrap it in with its on y scale???
-#y axis should be limited to 20 or even less 
+#Turbidity
+ggplot(data = darkcbn.wq, aes(x = Date, y = Turbidity)) +
+  geom_point(aes(col=Site), size=1) + 
+  ylim(0,125) +
+  labs(x = "Date ", y = "Turbidity (NTU)", title = "Turbidity")+
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  theme_bw(base_size = 10) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-#trying to facet grid one parameter(Chl) for all sites
-c <- ggplot(darkcbn.wq, aes(Date, Chl)) + geom_point()
+#export turbidity
+png("turbidity_point.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
 
-c + facet_grid(cols = vars(Site)) + 
-  scale_x_date(date_labels = "%b-%y", breaks= "6 months") 
+ggplot(data = darkcbn.wq, aes(x = Date, y = Turbidity)) +
+  geom_point(aes(col=Site), size=1) + 
+  ylim(0,125) +
+  labs(x = "Date ", y = "Turbidity (NTU)", title = "Turbidity")+
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  theme_bw(base_size = 10) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-#export to show and get feedback
+dev.off()
 
-png("chl_facet.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+#DOC
+ggplot(data = darkcbn.wq, aes(x = Date, y = DOC)) +
+  geom_point(aes(col=Site), size=1) + 
+  ylim(0,20) +
+  labs(x = "Date ", y = "DOC (ppm)", title = "DOC")+
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  theme_bw(base_size = 10) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-c + facet_grid(cols = vars(Site)) + 
-  scale_x_date(date_labels = "%b-%y", breaks= "6 months") 
+#export DOC
+png("DOC_point.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = darkcbn.wq, aes(x = Date, y = DOC)) +
+  geom_point(aes(col=Site), size=1) + 
+  ylim(0,20) +
+  labs(x = "Date ", y = "DOC (ppm)", title = "DOC")+
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  theme_bw(base_size = 10) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+dev.off()
+
+#PO4
+ggplot(data = darkcbn.wq, aes(x = Date, y = PO4)) +
+  geom_point(aes(col=Site), size=1) + 
+  labs(x = "Date ", y = "PO4 (ppm)", title = "Phosphate")+
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  theme_bw(base_size = 10) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+#export PO4
+png("PO4_point.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = darkcbn.wq, aes(x = Date, y = PO4)) +
+  geom_point(aes(col=Site), size=1) + 
+  labs(x = "Date ", y = "PO4 (ppm)", title = "Phosphate")+
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  theme_bw(base_size = 10) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+dev.off()
+
+#TP
+ggplot(data = darkcbn.wq, aes(x = Date, y = TP)) +
+  geom_point(aes(col=Site), size=1) + 
+  labs(x = "Date ", y = "TP (ppm)", title = "Total Phosphorus")+
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  theme_bw(base_size = 10) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+#export
+png("TP_point.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = darkcbn.wq, aes(x = Date, y = TP)) +
+  geom_point(aes(col=Site), size=1) + 
+  labs(x = "Date ", y = "TP (ppm)", title = "Total Phosphorus")+
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  theme_bw(base_size = 10) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+dev.off()
+
+#NO3
+ggplot(data = darkcbn.wq, aes(x = Date, y = NO3)) +
+  geom_point(aes(col=Site), size=1) + 
+  labs(x = "Date ", y = "Nitrate (ppm)", title = "Nitrate")+
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  theme_bw(base_size = 10) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+#export NO3
+png("NO3_point.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = darkcbn.wq, aes(x = Date, y = NO3)) +
+  geom_point(aes(col=Site), size=1) + 
+  labs(x = "Date ", y = "Nitrate (ppm)", title = "Nitrate")+
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  theme_bw(base_size = 10) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+dev.off()
+
+#NH4
+ggplot(data = darkcbn.wq, aes(x = Date, y = NH4)) +
+  geom_point(aes(col=Site), size=1) + 
+  labs(x = "Date ", y = "Ammonium (ppm)", title = "Ammonium")+
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  theme_bw(base_size = 10) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+#export NH4
+png("NH4_point.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = darkcbn.wq, aes(x = Date, y = NH4)) +
+  geom_point(aes(col=Site), size=1) + 
+  labs(x = "Date ", y = "Ammonium (ppm)", title = "Ammonium")+
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  theme_bw(base_size = 10) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+dev.off()
+
+
+#TN
+ggplot(data = darkcbn.wq, aes(x = Date, y = TN), position="dodge")+
+  geom_point(aes(col=Site), size=1)+
+  labs(x = "Date ", y = "TN (ppm)", title = "Total Nitrogen")+
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  theme_bw(base_size = 10) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+#export
+png("TN_point.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = darkcbn.wq, aes(x = Date, y = TN), position="dodge")+
+  geom_point(aes(col=Site), size=1)+
+  labs(x = "Date ", y = "TN (ppm)", title = "Total Nitrogen")+
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  theme_bw(base_size = 10) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+dev.off()
+
+#now subsetting the water quality data for Jan 1, 2019-April 30, 2019
+#labeling it as wet for 19 
+
+wq19s <-darkcbn.wq%>% 
+  select(Date, Site, pH, Chl, TN, NH4, NO3, TP, PO4, EC, DOC, Turbidity) %>%
+  filter(Date >= as.Date("2019/01/01") & Date <= as.Date("2019/04/30"))
+
+#now for individual graphs using the subsetted dates
+#actual new code to put all the sites on one- july 7th 2021 
+ggplot(data = wq19s, aes(x = Date, y = pH), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "pH")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(7, 8.25) +
+  theme_bw(base_size = 8)
+
+#export final pH 
+png("pH_sum19_wet.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = wq19s, aes(x = Date, y = pH), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "pH")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(7, 8.25) +
+  theme_bw(base_size = 8)
+
+dev.off()
+
+#START new code to put all the sites on one- july 7th 2021 
+chl <- ggplot(data = wq19s, aes(x = Date, y = Chl), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Chlorophyll")+
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  ylim(0, 25) +
+  theme_bw(base_size = 8)
+
+#export final chl 
+png("chl_sum19_wet.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = wq19s, aes(x = Date, y = Chl), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Chlorophyll")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 25) +
+  theme_bw(base_size = 8)
+
+dev.off()
+
+#START new code to put all the sites on one- july 7th 2021 
+tn<- ggplot(data = wq19s, aes(x = Date, y = TN), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Total Nitrogen")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 1.5) +
+  theme_bw(base_size = 8)
+
+#export final TN 
+png("TN_sum19_wet.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = wq19s, aes(x = Date, y = TN), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Total Nitrogen")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 1.5) +
+  theme_bw(base_size = 8)
+
+dev.off()
+
+
+#START new code to put all the sites on one- july 7th 2021 
+nh4<- ggplot(data = wq19s, aes(x = Date, y = NH4), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Ammonium") +
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, .5) +
+  theme_bw(base_size = 8)
+
+#export final NH4
+png("NH4_sum19_wet.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = wq19s, aes(x = Date, y = NH4), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Ammonium") +
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, .5) +
+  theme_bw(base_size = 8)
+
+dev.off()
+
+#START new code to put all the sites on one- july 7th 2021 
+ggplot(data = wq19s, aes(x = Date, y = NO3), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Nitrate")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 1) +
+  theme_bw(base_size = 8)
+
+#export final NH3 
+png("NO3_sum19_wet.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = wq19s, aes(x = Date, y = NO3), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Nitrate")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 1) +
+  theme_bw(base_size = 8)
+
+dev.off()
+
+#START new code to put all the sites on one- july 7th 2021 
+ggplot(data = wq19s, aes(x = Date, y = TP), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Total Phosphorus")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 0.6) +
+  theme_bw(base_size = 8)
+
+#export final TP 
+png("TP_sum19_wet.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = wq19s, aes(x = Date, y = TP), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Total Phosphorus")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 0.6) +
+  theme_bw(base_size = 8)
+
+dev.off()
+
+#START new code to put all the sites on one- july 7th 2021 
+ggplot(data = wq19s, aes(x = Date, y = PO4), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Phosphate")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, .4) +
+  theme_bw(base_size = 8)
+
+#export final PO4 
+png("PO4_sum19_wet.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = wq19s, aes(x = Date, y = PO4), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Phosphate")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, .4) +
+  theme_bw(base_size = 8)
+
+dev.off()
+
+#new code to put all the sites on one- july 7th 2021 
+ggplot(data = wq19s, aes(x = Date, y = DOC), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Dissolved Organic Carbon")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 10) +
+  theme_bw(base_size = 8)
+
+#export final DOC 
+png("DOC_sum19_wet.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = wq19s, aes(x = Date, y = DOC), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Dissolved Organic Carbon")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 10) +
+  theme_bw(base_size = 8)
+
+dev.off()
+
+#new code to put all the sites on one- july 7th 2021 
+ggplot(data = wq19s, aes(x = Date, y = EC), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Electrical conductivity")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 875) +
+  theme_bw(base_size = 8)
+
+#export final EC 
+png("EC_sum19_wet.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = wq19s, aes(x = Date, y = EC), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Electrical conductivity")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 875) +
+  theme_bw(base_size = 8)
+
+dev.off()
+
+#new code to put all the sites on one- july 7th 2021 
+ggplot(data = wq19s, aes(x = Date, y = Turbidity), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Turbidity")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 1000) +
+  theme_bw(base_size = 8)
+
+#export final Turb 
+png("Turb_sum19_wet.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+#new code to put all the sites on one- july 7th 2021 
+ggplot(data = wq19s, aes(x = Date, y = Turbidity), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Turbidity")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 1000) +
+  theme_bw(base_size = 8)
+
+dev.off()
+
+#then subsetting the water quality data for Jan 1, 2020-April 30, 2020
+wq20s <-darkcbn.wq%>% 
+  select(Date, Site, pH, Chl, TN, NH4, NO3, TP, PO4, EC, DOC, Turbidity) %>%
+  filter(Date >= as.Date("2020/01/01") & Date <= as.Date("2020/04/30"))
+
+#now for individual graphs for subsetted field season
+#actual new code to put all the sites on one- july 7th 2021 
+ggplot(data = wq20s, aes(x = Date, y = pH), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "pH")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(7, 8.25) +
+  theme_bw(base_size = 8)
+
+#export final pH 
+png("pH_sum20_wet.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = wq20s, aes(x = Date, y = pH), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "pH")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(7, 8.25) +
+  theme_bw(base_size = 8)
+
+dev.off()
+
+#START new code to put all the sites on one- july 7th 2021 
+chl <- ggplot(data = wq20s, aes(x = Date, y = Chl), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Chlorophyll")+
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  ylim(0, 25) +
+  theme_bw(base_size = 8)
+
+#export final chl 
+png("chl_sum20_wet.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = wq20s, aes(x = Date, y = Chl), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Chlorophyll")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 25) +
+  theme_bw(base_size = 8)
+
+dev.off()
+
+#START new code to put all the sites on one- july 7th 2021 
+tn<- ggplot(data = wq20s, aes(x = Date, y = TN), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Total Nitrogen")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 1.5) +
+  theme_bw(base_size = 8)
+
+#export final TN 
+png("TN_sum20_wet.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = wq20s, aes(x = Date, y = TN), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Total Nitrogen")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 1.5) +
+  theme_bw(base_size = 8)
+
+dev.off()
+
+
+#START new code to put all the sites on one- july 7th 2021 
+nh4<- ggplot(data = wq20s, aes(x = Date, y = NH4), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Ammonium") +
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, .5) +
+  theme_bw(base_size = 8)
+
+#export final NH4
+png("NH4_sum20_wet.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = wq20s, aes(x = Date, y = NH4), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Ammonium") +
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, .5) +
+  theme_bw(base_size = 8)
+
+dev.off()
+
+#START new code to put all the sites on one- july 7th 2021 
+ggplot(data = wq20s, aes(x = Date, y = NO3), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Nitrate")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 1) +
+  theme_bw(base_size = 8)
+
+#export final NH3 
+png("NO3_sum20_wet.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = wq20s, aes(x = Date, y = NO3), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Nitrate")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 1) +
+  theme_bw(base_size = 8)
+
+dev.off()
+
+#START new code to put all the sites on one- july 7th 2021 
+ggplot(data = wq20s, aes(x = Date, y = TP), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Total Phosphorus")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 0.6) +
+  theme_bw(base_size = 8)
+
+#export final TP 
+png("TP_sum20_wet.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = wq20s, aes(x = Date, y = TP), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Total Phosphorus")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 0.6) +
+  theme_bw(base_size = 8)
+
+dev.off()
+
+#START new code to put all the sites on one- july 7th 2021 
+ggplot(data = wq20s, aes(x = Date, y = PO4), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Phosphate")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, .4) +
+  theme_bw(base_size = 8)
+
+#export final PO4 
+png("PO4_sum20_wet.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = wq20s, aes(x = Date, y = PO4), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Phosphate")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, .4) +
+  theme_bw(base_size = 8)
+
+dev.off()
+
+#new code to put all the sites on one- july 7th 2021 
+ggplot(data = wq20s, aes(x = Date, y = DOC), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Dissolved Organic Carbon")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 10) +
+  theme_bw(base_size = 8)
+
+#export final DOC 
+png("DOC_sum20_wet.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = wq20s, aes(x = Date, y = DOC), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Dissolved Organic Carbon")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 10) +
+  theme_bw(base_size = 8)
+
+dev.off()
+
+#new code to put all the sites on one- july 7th 2021 
+ggplot(data = wq20s, aes(x = Date, y = EC), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Electrical conductivity")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 875) +
+  theme_bw(base_size = 8)
+
+#export final EC 
+png("EC_sum20_wet.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = wq20s, aes(x = Date, y = EC), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Electrical conductivity")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 875) +
+  theme_bw(base_size = 8)
+
+dev.off()
+
+#new code to put all the sites on one- july 7th 2021 
+ggplot(data = wq20s, aes(x = Date, y = Turbidity), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Turbidity")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 1000) +
+  theme_bw(base_size = 8)
+
+#export final Turb 
+png("Turb_sum20_wet.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+#new code to put all the sites on one- july 7th 2021 
+ggplot(data = wq20s, aes(x = Date, y = Turbidity), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Turbidity")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 1000) +
+  theme_bw(base_size = 8)
+
+dev.off()
+
+#then subsetting the water quality data for 2019
+wq19 <-darkcbn.wq%>% 
+  select(Date, Site, pH, Chl, TN, NH4, NO3, TP, PO4, EC, DOC, Turbidity) %>%
+  filter(Date >= as.Date("2019/01/01") & Date <= as.Date("2019/12/31"))
+
+#now for subsetted 2019 year
+#actual new code to put all the sites on one- july 7th 2021 
+ggplot(data = wq19, aes(x = Date, y = pH), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "pH")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(7, 8.25) +
+  theme_bw(base_size = 8)
+
+#export final pH 
+png("pH_sum19.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = wq19, aes(x = Date, y = pH), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "pH")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(7, 8.25) +
+  theme_bw(base_size = 8)
+
+dev.off()
+
+#START new code to put all the sites on one- july 7th 2021 
+chl <- ggplot(data = wq19, aes(x = Date, y = Chl), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Chlorophyll")+
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  ylim(0, 25) +
+  theme_bw(base_size = 8)
+
+#export final chl 
+png("chl_sum19.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = wq19, aes(x = Date, y = Chl), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Chlorophyll")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 25) +
+  theme_bw(base_size = 8)
+
+dev.off()
+
+#START new code to put all the sites on one- july 7th 2021 
+tn<- ggplot(data = wq19, aes(x = Date, y = TN), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Total Nitrogen")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 1.5) +
+  theme_bw(base_size = 8)
+
+#export final TN 
+png("TN_sum19.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = wq19, aes(x = Date, y = TN), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Total Nitrogen")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 1.5) +
+  theme_bw(base_size = 8)
+
+dev.off()
+
+
+#START new code to put all the sites on one- july 7th 2021 
+nh4<- ggplot(data = wq19, aes(x = Date, y = NH4), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Ammonium") +
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, .5) +
+  theme_bw(base_size = 8)
+
+#export final NH4
+png("NH4_sum19.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = wq19, aes(x = Date, y = NH4), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Ammonium") +
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, .5) +
+  theme_bw(base_size = 8)
+
+dev.off()
+
+#START new code to put all the sites on one- july 7th 2021 
+ggplot(data = wq19, aes(x = Date, y = NO3), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Nitrate")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 1) +
+  theme_bw(base_size = 8)
+
+#export final NH3 
+png("NO3_sum19.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = wq19, aes(x = Date, y = NO3), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Nitrate")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 1) +
+  theme_bw(base_size = 8)
+
+dev.off()
+
+#START new code to put all the sites on one- july 7th 2021 
+ggplot(data = wq19, aes(x = Date, y = TP), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Total Phosphorus")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 0.6) +
+  theme_bw(base_size = 8)
+
+#export final TP 
+png("TP_sum19.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = wq19, aes(x = Date, y = TP), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Total Phosphorus")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 0.6) +
+  theme_bw(base_size = 8)
+
+dev.off()
+
+#START new code to put all the sites on one- july 7th 2021 
+ggplot(data = wq19, aes(x = Date, y = PO4), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Phosphate")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, .4) +
+  theme_bw(base_size = 8)
+
+#export final PO4 
+png("PO4_sum19.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = wq19, aes(x = Date, y = PO4), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Phosphate")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, .4) +
+  theme_bw(base_size = 8)
+
+dev.off()
+
+#new code to put all the sites on one- july 7th 2021 
+ggplot(data = wq19, aes(x = Date, y = DOC), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Dissolved Organic Carbon")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 10) +
+  theme_bw(base_size = 8)
+
+#export final DOC 
+png("DOC_sum19.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = wq19, aes(x = Date, y = DOC), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Dissolved Organic Carbon")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 10) +
+  theme_bw(base_size = 8)
+
+dev.off()
+
+#new code to put all the sites on one- july 7th 2021 
+ggplot(data = wq19, aes(x = Date, y = EC), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Electrical conductivity")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 875) +
+  theme_bw(base_size = 8)
+
+#export final EC 
+png("EC_sum19.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = wq19, aes(x = Date, y = EC), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Electrical conductivity")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 875) +
+  theme_bw(base_size = 8)
+
+dev.off()
+
+#new code to put all the sites on one- july 7th 2021 
+ggplot(data = wq19, aes(x = Date, y = Turbidity), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Turbidity")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 1000) +
+  theme_bw(base_size = 8)
+
+#export final Turb 
+png("Turb_sum19.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+#new code to put all the sites on one- july 7th 2021 
+ggplot(data = wq19, aes(x = Date, y = Turbidity), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Turbidity")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 1000) +
+  theme_bw(base_size = 8)
+
+dev.off()
+
+#then subsetting the water quality data for 2020
+
+wq20 <-darkcbn.wq%>% 
+  select(Date, Site, pH, Chl, TN, NH4, NO3, TP, PO4, EC, DOC, Turbidity) %>%
+  filter(Date >= as.Date("2020/01/01") & Date <= as.Date("2020/12/31"))
+
+#now for subsetted year 2020 
+ggplot(data = wq20, aes(x = Date, y = pH), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "pH")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(7, 8.25) +
+  theme_bw(base_size = 8)
+
+#export final pH 
+png("pH_sum20.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = wq20, aes(x = Date, y = pH), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "pH")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(7, 8.25) +
+  theme_bw(base_size = 8)
+
+dev.off()
+
+#START new code to put all the sites on one- july 7th 2021 
+chl <- ggplot(data = wq20, aes(x = Date, y = Chl), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Chlorophyll")+
+  scale_x_date(date_labels = "%b-%y", breaks= "2 months") +
+  ylim(0, 25) +
+  theme_bw(base_size = 8)
+
+#export final chl 
+png("chl_sum20.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = wq20, aes(x = Date, y = Chl), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Chlorophyll")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 25) +
+  theme_bw(base_size = 8)
+
+dev.off()
+
+#START new code to put all the sites on one- july 7th 2021 
+tn<- ggplot(data = wq20, aes(x = Date, y = TN), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Total Nitrogen")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 1.5) +
+  theme_bw(base_size = 8)
+
+#export final TN 
+png("TN_sum20.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = wq20, aes(x = Date, y = TN), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Total Nitrogen")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 1.5) +
+  theme_bw(base_size = 8)
+
+dev.off()
+
+
+#START new code to put all the sites on one- july 7th 2021 
+nh4<- ggplot(data = wq20, aes(x = Date, y = NH4), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Ammonium") +
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, .5) +
+  theme_bw(base_size = 8)
+
+#export final NH4
+png("NH4_sum20.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = wq20, aes(x = Date, y = NH4), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Ammonium") +
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, .5) +
+  theme_bw(base_size = 8)
+
+dev.off()
+
+#START new code to put all the sites on one- july 7th 2021 
+ggplot(data = wq20, aes(x = Date, y = NO3), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Nitrate")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 1) +
+  theme_bw(base_size = 8)
+
+#export final NH3 
+png("NO3_sum20.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = wq20, aes(x = Date, y = NO3), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Nitrate")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 1) +
+  theme_bw(base_size = 8)
+
+dev.off()
+
+#START new code to put all the sites on one- july 7th 2021 
+ggplot(data = wq20, aes(x = Date, y = TP), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Total Phosphorus")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 0.6) +
+  theme_bw(base_size = 8)
+
+#export final TP 
+png("TP_sum20.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = wq20, aes(x = Date, y = TP), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Total Phosphorus")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 0.6) +
+  theme_bw(base_size = 8)
+
+dev.off()
+
+#START new code to put all the sites on one- july 7th 2021 
+ggplot(data = wq20, aes(x = Date, y = PO4), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Phosphate")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, .4) +
+  theme_bw(base_size = 8)
+
+#export final PO4 
+png("PO4_sum20.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = wq20, aes(x = Date, y = PO4), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Phosphate")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, .4) +
+  theme_bw(base_size = 8)
+
+dev.off()
+
+#new code to put all the sites on one- july 7th 2021 
+ggplot(data = wq20, aes(x = Date, y = DOC), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Dissolved Organic Carbon")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 10) +
+  theme_bw(base_size = 8)
+
+#export final DOC 
+png("DOC_sum20.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = wq20, aes(x = Date, y = DOC), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Dissolved Organic Carbon")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 10) +
+  theme_bw(base_size = 8)
+
+dev.off()
+
+#new code to put all the sites on one- july 7th 2021 
+ggplot(data = wq20, aes(x = Date, y = EC), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Electrical conductivity")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 875) +
+  theme_bw(base_size = 8)
+
+#export final EC 
+png("EC_sum20.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+ggplot(data = wq20, aes(x = Date, y = EC), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Electrical conductivity")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 875) +
+  theme_bw(base_size = 8)
+
+dev.off()
+
+#new code to put all the sites on one- july 7th 2021 
+ggplot(data = wq20, aes(x = Date, y = Turbidity), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Turbidity")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 1000) +
+  theme_bw(base_size = 8)
+
+#export final Turb 
+png("Turb_sum20.png", width = 6.5, height = 4, units = "in", res = 500, family = "sans")
+
+#new code to put all the sites on one- july 7th 2021 
+ggplot(data = wq20, aes(x = Date, y = Turbidity), position="dodge")+
+  geom_point(aes(col=Site), size=1) +
+  labs(title = "Turbidity")+
+  scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
+  ylim(0, 1000) +
+  theme_bw(base_size = 8)
 
 dev.off()
 

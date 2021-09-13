@@ -1319,11 +1319,17 @@ doc_data$Date.Collected <- mdy(doc_data$Date.Collected)
 
 doc_data$Date.Sampled <- mdy(doc_data$Date.Sampled)
 
-#form a new column that is Location and Repitition 
-site_rep_doc_data %>% 
-  unite("Site_Rep", c(Location, Rep.ID), remove = FALSE)
-#Help 
+#Remove Floating Peats Sites 
+doc_data <- doc_data %>% 
+  filter(Location != c("SRT 1", "LRT 2", "SRT 3", "LRT 4", "OPEN 5", "CLOSED 6", "OPEN 7", "CLOSED 8", "FP INLET")
 
+#moving Repetition column next to Location column 
+doc_data <- doc_data %>%
+  relocate(Rep.ID, .after = Location)
+
+#form a new column that is Location and Repetition 
+doc_data <- doc_data  %>% 
+  unite("Site_Rep", c(Location, Rep.ID), sep = " ", remove = FALSE)
 
 
 # Divide Samples into Quarters --------------------------------------------
@@ -1403,6 +1409,72 @@ june_2020_doc <- doc_data %>%
 
 oct_2020_doc <- doc_data %>% 
   filter(Date.Collected == "2020-10-07")
+
+
+# Graphing DOC over time --------------------------------------------------
+
+ggplot(data = jan_2019_doc, aes(x = Date.Sampled, y = DOC.ppm))+
+  geom_point(aes(col=Site_Rep), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site_Rep))+
+  labs(x = "Date Subsampled", y = "DOC (ppm)", title = "January-March 2019 DOC")+
+  theme_bw(base_size = 10)
+
+ggplot(data = april_2019_doc, aes(x = Date.Sampled, y = DOC.ppm))+
+  geom_point(aes(col=Site_Rep), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site_Rep))+
+  labs(x = "Date Subsampled", y = "DOC (ppm)", title = "April 2019 DOC")+
+  theme_bw(base_size = 10)
+
+ggplot(data = june_2019_doc, aes(x = Date.Sampled, y = DOC.ppm))+
+  geom_point(aes(col=Site_Rep), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site_Rep))+
+  labs(x = "Date Subsampled", y = "DOC (ppm)", title = "June 2019 DOC")+
+  theme_bw(base_size = 10)
+
+ggplot(data = sept_2019_doc, aes(x = Date.Sampled, y = DOC.ppm))+
+  geom_point(aes(col=Site_Rep), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site_Rep))+
+  labs(x = "Date Subsampled", y = "DOC (ppm)", title = "September 2019 DOC")+
+  theme_bw(base_size = 10)
+
+ggplot(data = oct_2019_doc, aes(x = Date.Sampled, y = DOC.ppm))+
+  geom_point(aes(col=Site_Rep), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site_Rep))+
+  labs(x = "Date Subsampled", y = "DOC (ppm)", title = "October 2019 DOC")+
+  theme_bw(base_size = 10)
+
+ggplot(data = dec_2019_doc, aes(x = Date.Sampled, y = DOC.ppm))+
+  geom_point(aes(col=Site_Rep), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site_Rep))+
+  labs(x = "Date Subsampled", y = "DOC (ppm)", title = "December 2019 - January 2020 DOC")+
+  theme_bw(base_size = 10) 
+
+ggplot(data = feb_2020_doc, aes(x = Date.Sampled, y = DOC.ppm))+
+  geom_point(aes(col=Site_Rep), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site_Rep))+
+  labs(x = "Date Subsampled", y = "DOC (ppm)", title = "February 2020 DOC")+
+  theme_bw(base_size = 10)
+
+ggplot(data = march_2020, aes(x = Date.Sampled, y = DOC.ppm))+
+  geom_point(aes(col=Site_Rep), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site_Rep))+
+  labs(x = "Date Subsampled", y = "DOC (ppm)", title = "March 2020 DOC")+
+  theme_bw(base_size = 10)
+
+ggplot(data = june_2020_doc, aes(x = Date.Sampled, y = DOC.ppm))+
+  geom_point(aes(col=Site_Rep), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site_Rep))+
+  labs(x = "Date Subsampled", y = "DOC (ppm)", title = "June 2020 DOC")+
+  theme_bw(base_size = 10)
+
+ggplot(data = oct_2020_doc, aes(x = Date.Sampled, y = DOC.ppm))+
+  geom_point(aes(col=Site_Rep), size=1)+
+  geom_line(aes(group=Site_Rep, col=Site_Rep))+
+  labs(x = "Date Subsampled", y = "DOC (ppm)", title = "October 2020 DOC")+
+  theme_bw(base_size = 10)
+
+# Something that showed up randomly ---------------------------------------
+
 
 >>>>>>> 7b082d9b5668090966a6fb1b33383e502d0cc6ea
 

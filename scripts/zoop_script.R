@@ -334,3 +334,7 @@ ggplot(zoop20s, aes(x=Date, y=Total, color=Group, fill=Group)) +
 dev.off()
 
 #upload to git
+install.packages("gitcreds")
+library(gitcreds)
+gitcreds_set()
+

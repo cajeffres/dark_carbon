@@ -50,55 +50,71 @@ abundance<-function(df) {
 drkcbnabundance2 <-abundance(zoop.dc2.nona)
 
 
-# Data Subsetting ---------------------------------------------------------
-
-#Group by site, date, and order 
-drkcbnzoop.sum2 <-drkcbnabundance2 %>% 
-  group_by(Site, Date, Order, Subclass, Group, Species, LifeStage) %>% 
-  summarise(Total=sum(ind_m3)) 
-
-#do only january 2019 end of december 2020 
-drkcbnzoop.sum3 <- drkcbnzoop.sum2 %>%
-  select(Site, Date, Order, Subclass, Total, Group, Species, LifeStage) %>% 
-  filter(Date >= ymd("2019/01/01") & Date <= ymd("2020/12/31"))
-
-#subset 2019
-zoop19<- drkcbnzoop.sum3 %>%
-  select(Site, Date, Order, Subclass, Total, Group, Species, LifeStage) %>%
-  filter(Date >= ymd("2019/01/01") & Date <= ymd("2019/12/31"))
-
-#subset 2020
-zoop20<- drkcbnzoop.sum3 %>%
-  select(Site, Date, Order, Subclass, Total, Group, Species, LifeStage) %>%
-  filter(Date >= ymd("2020/01/01") & Date <= ymd("2020/12/31"))
-
-#check sites 
-unique(drkcbnzoop.sum2$Site)
-
-# 2019-2020 Plot ---------------------------------------------------------------
+# Add Colors --------------------------------------------------------------
 
 # make max number of possible Groups for colors
-mxColors <- length(unique(drkcbnzoop.sum2$Group))
+mxColors <- length(unique(drkcbnabundance2$Group))
 
 # nice color packages:
 # colorspace::hcl_palettes()
 library(randomcoloR)
-colPal <- randomcoloR::distinctColorPalette(mxColors, runTsne = TRUE)
+colPal <- randomcoloR::distinctColorPalette(mxColors, runTsne = FALSE)
+
+colMap <- data.frame(
+  color = I(randomcoloR::distinctColorPalette(mxColors, runTsne = FALSE)),
+  Group = as.factor(sort(unique(drkcbnabundance2$Group))))
+colMap
+
+# bind back to colmap
+drkcbnabundance2 <- left_join(drkcbnabundance2, colMap)
+
+# Data Subsetting ---------------------------------------------------------
+
+#Group by site, date, and order 
+drkcbnzoop.sum2 <-drkcbnabundance2 %>% 
+  mutate(Group = as.factor(Group),
+         Site = as.factor(Site)) %>% 
+  group_by(Site, Date, Order, Subclass, Group, Species, LifeStage, color) %>% 
+  summarise(Total=sum(ind_m3)) 
+
+#do only january 2019 end of december 2020 
+drkcbnzoop.sum3 <- drkcbnzoop.sum2 %>%
+  select(Site, Date, Order, Subclass, Total, Group, Species, LifeStage, color) %>% 
+  filter(Date >= ymd("2019/01/01") & Date <= ymd("2020/12/31"))
+
+#subset 2019
+zoop19<- drkcbnzoop.sum3 %>%
+  select(Site, Date, Order, Subclass, Total, Group, Species, LifeStage, color) %>%
+  filter(Date >= ymd("2019/01/01") & Date <= ymd("2019/12/31"))
+
+#subset 2020
+zoop20<- drkcbnzoop.sum3 %>%
+  select(Site, Date, Order, Subclass, Total, Group, Species, LifeStage, color) %>%
+  filter(Date >= ymd("2020/01/01") & Date <= ymd("2020/12/31"))
+
+#check sites 
+unique(drkcbnzoop.sum2$Site)
+levels(drkcbnzoop.sum2$Site)
+levels(drkcbnzoop.sum2$Group)
+unique(drkcbnzoop.sum2$color)
+
+# 2019-2020 Plot ---------------------------------------------------------------
 
 #plot of  both years
 (zpBoth <- ggplot(drkcbnzoop.sum3, aes(x=Date, y=Total, color=Group, fill=Group)) +
     geom_bar(stat="identity") +
     labs(title = "Yearly Abundance: 2019-2020") +
-    facet_grid(Site~., scales = "free_y") +
+    #facet_grid(Site~., scales = "free_y") +
+    facet_grid(Site~.) +
     geom_vline(xintercept = ymd("2019-10-01"), color="maroon") +
     #scale_fill_manual(values = RColorBrewer::brewer.pal(mxColors, "BrBG")) +
-    scale_color_manual(values=colPal) +
-    scale_fill_manual(values=colPal) +
+    scale_color_manual(values=colMap$color) +
+    scale_fill_manual(values=colMap$color) +
     scale_x_date(date_labels = "%b-%Y", breaks= "3 months") +
     scale_y_continuous(label=comma) +
     theme_bw())
 
-ggsave(zpBoth, filename = "figs/zoop_abundance_2019-2020.png", width=9, height = 6.5, 
+ggsave(zpBoth, filename = "figs/zoop_abundance_2019-2020_static_y.png", width=9, height = 6.5, 
        units="in", dpi=300)
 
 # 2019 Plot ---------------------------------------------------------------
@@ -107,14 +123,17 @@ ggsave(zpBoth, filename = "figs/zoop_abundance_2019-2020.png", width=9, height =
 (zp2019 <- ggplot(zoop19, aes(x=Date, y=Total, color=Group, fill=Group)) +
    geom_bar(stat="identity") +
    labs(title = "Yearly Abundance: 2019") +
-   facet_grid(Site~., scales = "free_y") +
-   scale_color_manual(values=colPal) +
-   scale_fill_manual(values=colPal) +
+   #facet_grid(Site~., scales = "free_y") +
+   facet_grid(Site~.) +
+   scale_color_manual(values=colMap$color) +
+   scale_fill_manual(values=colMap$color) +
+   # scale_color_manual(values=colPal) +
+   # scale_fill_manual(values=colPal) +
    scale_x_date(date_labels = "%b-%Y", breaks= "3 months") +
    scale_y_continuous(label=comma) +
    theme_bw())
 
-ggsave(zp2019, filename = "figs/zoop_abundance_2019.png", width=9, height = 6.5, 
+ggsave(zp2019, filename = "figs/zoop_abundance_2019_static_y.png", width=9, height = 6.5, 
        units="in", dpi=300)
 
 
@@ -124,14 +143,37 @@ ggsave(zp2019, filename = "figs/zoop_abundance_2019.png", width=9, height = 6.5,
 (zp2020 <- ggplot(zoop20, aes(x=Date, y=Total, color=Group, fill=Group)) +
    geom_bar(stat="identity") +
    labs(title = "Yearly Abundance: 2020") +
-   facet_grid(Site~., scales = "free_y") + # turn off scales free y if needed
-   scale_color_manual(values=colPal) +
-   scale_fill_manual(values=colPal) +
+   #facet_grid(Site~., scales = "free_y") + # turn off scales free y if needed
+   facet_grid(Site~.) +
+   scale_color_manual(values=colMap$color) +
+   scale_fill_manual(values=colMap$color) +
    scale_x_date(date_labels = "%b-%y", breaks= "3 months") +
    scale_y_continuous(label=comma) +
    theme_bw())
 
-ggsave(zp2020, filename = "figs/zoop_abundance_2020.png", width=9, height = 6.5, 
+ggsave(zp2020, filename = "figs/zoop_abundance_2020_static_y.png", width=9, height = 6.5, 
+       units="in", dpi=300)
+
+
+
+# Plot Just Baby Marsh 2019-2020 ------------------------------------------
+
+
+babymarsh <- drkcbnzoop.sum3 %>% filter(Site == "Baby Marsh") %>% 
+  wateRshedTools::add_WYD("Date")
+
+(bm19_20 <- ggplot(babymarsh %>% filter(!WY==2021), 
+                   aes(x=DOWY, y=Total, color=Group, fill=Group)) +
+  geom_bar(stat="identity", width = 2.5) +
+  labs(title = "Yearly Abundance") +
+  facet_grid(WY~.) +
+  scale_color_manual(values=colMap$color) +
+  scale_fill_manual(values=colMap$color) +
+  scale_y_continuous(label=comma) +
+  theme_bw())
+
+# baby marsh
+ggsave(bm19_20, filename = "figs/zoop_abundance_bm_2019-2020.png", width=9, height = 6.5, 
        units="in", dpi=300)
 
 
@@ -163,7 +205,7 @@ zoop20s<- drkcbnzoop.sum3 %>%
    scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
    scale_y_continuous(label=comma) +
    theme_bw())
-ggsave(wzp19, filename = "figs/zoop_abundance_jan_apr_2019.png", width = 10, height = 8, 
+ggsave(wzp19, filename = "figs/zoop_abundance_jan_apr_2019_static_y.png", width = 10, height = 8, 
        units="in", dpi=300)
 
 
@@ -172,8 +214,8 @@ ggsave(wzp19, filename = "figs/zoop_abundance_jan_apr_2019.png", width = 10, hei
 (wzp20 <- ggplot(zoop20s, aes(x=Date, y=Total, color=Group, fill=Group)) +
     geom_bar(stat="identity") +
     labs(title = "Abundance: 2020") +
-    facet_grid(Site~., scales = "free_y") + # turn off scales free y if needed
-    #facet_grid(Site~.) + # static y scale
+    #facet_grid(Site~., scales = "free_y") + # turn off scales free y if needed
+    facet_grid(Site~.) + # static y scale
     scale_color_manual(values=colPal) +
     scale_fill_manual(values=colPal) +
     scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
@@ -181,7 +223,7 @@ ggsave(wzp19, filename = "figs/zoop_abundance_jan_apr_2019.png", width = 10, hei
     theme_bw())
 
 # Export all the graph and ask for feedback 
-ggsave(wzp20, filename = "figs/zoop_abundance_jan_apr_2020.png", width = 10, height = 8, 
+ggsave(wzp20, filename = "figs/zoop_abundance_jan_apr_2020_static_y.png", width = 10, height = 8, 
        units="in", dpi=300)
 
 # Log ---------------------------------------------------------------------
@@ -200,8 +242,8 @@ ggsave("figs/zoop_abundance_jan_apr_2020_logscale.png",
 (wzp20log <- ggplot(zoop20s, aes(x=Date, y=log(Total), color=Group, fill=Group)) +
     geom_bar(stat="identity") +
     labs(title = "Abundance: 2020", y="Log(Total)") +
-    facet_grid(Site~., scales = "free_y") + # turn off scales free y if needed
-    #facet_grid(Site~.) + # static y scale
+    #facet_grid(Site~., scales = "free_y") + # turn off scales free y if needed
+    facet_grid(Site~.) + # static y scale
     scale_color_manual(values=colPal) +
     scale_fill_manual(values=colPal) +
     scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
@@ -214,8 +256,8 @@ ggsave("figs/zoop_abundance_jan_apr_2020_log.png",
 (wzp19log <- ggplot(zoop19s, aes(x=Date, y=log(Total), color=Group, fill=Group)) +
     geom_bar(stat="identity") +
     labs(title = "Abundance: 2019", y="Log(Total)") +
-    facet_grid(Site~., scales = "free_y") + # turn off scales free y if needed
-    #facet_grid(Site~.) + # static y scale
+    #facet_grid(Site~., scales = "free_y") + # turn off scales free y if needed
+    facet_grid(Site~.) + # static y scale
     scale_color_manual(values=colPal) +
     scale_fill_manual(values=colPal) +
     scale_x_date(date_labels = "%b-%y", breaks= "1 months") +
